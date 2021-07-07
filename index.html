@@ -5,7 +5,16 @@
         <script src="https://d3js.org/d3.v4.js"></script>
         <style>
             body {
-                font-family: Arial, Helvetica, sans-serif
+                font-family: Arial, Helvetica, sans-serif;
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                background-color:lightgray;
+            }
+            #wrapper {
+                width: 900px;
+                background-color: white;
+                padding: 30px;
             }
             #container {
                 display: flex;
@@ -54,45 +63,53 @@
             .important {
                 font-style: italic;
             }
-
+            #footer {
+                width: 100%;
+                margin-top: 20px;
+                text-align: right;
+            }
         </style>
     </head>
     <body>
-        <h2>Opportunity Score and Map</h2>
-        Paste tab-separated data formatted in <span class="important">3 columns (<b>Outcome, Importance, Satisfaction</b>), without headers</span>, as indicated below, then click on [Map data].<br />
-        Sample data has been included for you to play around with. Click [Clear data] to enter your own data.
-        <br />
-        <br />
-        <div id="container">
-            <div id="controls">
-                <h3>Input data</h3>
-                <table id="input-table">
-                    <tr>
-                        <th>Outcome</th>
-                        <th>Importance</th>
-                        <th>Satisfaction</th>
-                    </tr>
-                </table>
+        <div id="wrapper">
+            <h2>Opportunity Score and Map</h2>
+            Paste tab-separated data formatted in <span class="important">3 columns (<b>Outcome, Importance, Satisfaction</b>), without headers</span>, as indicated below, then click on [Map data].<br />
+            Sample data has been included for you to play around with. Click [Clear data] to enter your own data.
+            <br />
+            <br />
+            <div id="container">
+                <div id="controls">
+                    <h3>Input data</h3>
+                    <table id="input-table">
+                        <tr>
+                            <th>Outcome</th>
+                            <th>Importance</th>
+                            <th>Satisfaction</th>
+                        </tr>
+                    </table>
 
-                    <textarea id="input-data" placeholder="Paste tab or comma-separated data here"></textarea>
+                        <textarea id="input-data" placeholder="Paste tab or comma-separated data here"></textarea>
 
-                <button id="refresh">Map data</button>
-                <button id="clear">Clear data</button>
-                <button id="export" style="visibility:hidden;">Export map to PNG</button>
+                    <button id="refresh">Map data</button>
+                    <button id="clear">Clear data</button>
+                    <button id="export" style="visibility:hidden;">Export map to PNG</button>
+                </div>
+                <div id="map_area"></div>
             </div>
-            <div id="map_area"></div>
+            <h3>Opportunity Scores</h3>
+            <table id="oppscores-table">
+                <tr>
+                    <th>&nbsp;</th>
+                    <th>Outcome</th>
+                    <th>Importance</th>
+                    <th>Satisfaction</th>
+                    <th>OppScore</th>
+                </tr>
+            </table>
+            <div id="footer">
+                <a href="https://jucarra.github.io" target="_blank">jucarra.github.io</a>
+            </div>
         </div>
-        <h3>Opportunity Scores</h3>
-        <table id="oppscores-table">
-            <tr>
-                <th>&nbsp;</th>
-                <th>Outcome</th>
-                <th>Importance</th>
-                <th>Satisfaction</th>
-                <th>OppScore</th>
-            </tr>
-        </table>
-
         <script>
             window.onload = function() {
                 function refresh(data) {
