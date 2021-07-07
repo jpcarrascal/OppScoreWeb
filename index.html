@@ -2,7 +2,7 @@
     <head>
         <script src="https://cdn.rawgit.com/eligrey/canvas-toBlob.js/f1a01896135ab378aa5c0118eadd81da55e698d8/canvas-toBlob.js"></script>
         <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
-        <script src="https://d3js.org/d3.v4.js"></script>    
+        <script src="https://d3js.org/d3.v4.js"></script>
         <style>
             body {
                 font-family: Arial, Helvetica, sans-serif
@@ -84,6 +84,7 @@
         <h3>Opportunity Scores</h3>
         <table id="oppscores-table">
             <tr>
+                <th></th>
                 <th>Outcome</th>
                 <th>Importance</th>
                 <th>Satisfaction</th>
@@ -125,9 +126,61 @@
                     SVG
                         .append('g')
                         .call(d3.axisLeft(y));
+
+                    SVG.append("line")
+                        .attr("x1", x(10))
+                        .attr("y1", y(0))
+                        .attr("x2", x(10))
+                        .attr("y2", y(10))
+                        .style("stroke", "black");
                     
-                    // Add 3 dots for 0, 50 and 100%
-                    SVG
+                    SVG.append("line")
+                        .attr("x1", x(0))
+                        .attr("y1", y(10))
+                        .attr("x2", x(10))
+                        .attr("y2", y(10))
+                        .style("stroke", "black");
+
+                    SVG.append("line")
+                        .attr("x1", x(0))
+                        .attr("y1", y(0))
+                        .attr("x2", x(10))
+                        .attr("y2", y(10))
+                        .style("stroke", "lightgrey");
+                    
+                    SVG.append("line")
+                        .attr("x1", x(5))
+                        .attr("y1", y(0))
+                        .attr("x2", x(10))
+                        .attr("y2", y(10))
+                        .style("stroke", "lightgrey");
+                    
+                    SVG.append("text")     
+                        .attr("x", function (d) { return x(3); } )
+                        .attr("y", function (d) { return y(6); } )
+                        .style("text-anchor", "middle")
+                        .text("Overserved")
+                        .style("font-size", "13px")
+                        .style("fill", "lightgrey");
+
+                    SVG.append("text")     
+                        .attr("x", function (d) { return x(4); } )
+                        .attr("y", function (d) { return y(2); } )
+                        .style("text-anchor", "middle")
+                        .text("Appropriately Served")
+                        .style("font-size", "13px")
+                        .style("fill", "lightgrey");
+
+                    SVG.append("text")     
+                        .attr("x", function (d) { return x(8); } )
+                        .attr("y", function (d) { return y(2); } )
+                        .style("text-anchor", "middle")
+                        .text("Underserved")
+                        .style("font-size", "13px")
+                        .style("fill", "lightgrey");
+
+                    // points:
+                    var points = SVG
                         .selectAll("whatever")
                         .data(data)
                         .enter()
@@ -136,6 +189,21 @@
                         .attr("cy", function(d){ return y(d.y) })
                         .style("fill", "red")
                         .attr("r", 5)
+
+                    var labels = SVG
+                        .selectAll("whatever")
+                        .data(data)
+                        .enter()
+                        .append("text")
+                        .attr("x", function (d) { return x(d.x)-8; } )
+                        .attr("y", function (d) { return y(d.y)+3; } )
+                        .text(function(d) { return d.index; })
+                        .attr("font-family", "sans-serif")
+                        .style("text-anchor", "end")
+                        .attr("font-size", "12px")
+                        .attr("cursor","default")
+                        .attr("fill", "#666")
+
                 }
                 refresh([]);
                 generateData();
@@ -201,8 +269,15 @@
                         var meanSat = roundTwo(10 * (sumSat / countSat));
                         var oppScore = meanImp + (Math.max(meanImp-meanSat,0));
                         console.log(sumImp)
-                        OppScores.push({ outcome: thisOutcome, x: meanImp, y: meanSat, oppScore: oppScore});
+                        OppScores.push({ index: 0, outcome: thisOutcome, x: meanImp, y: meanSat, oppScore: oppScore});
                     }
+
+                    OppScores.sort( compare );
+                    console.log(OppScores)
+                    for(var i=0; i<OppScores.length; i++) {
+                        OppScores[i].index = i+1;
+                    }
+
                     return OppScores;
                 }
 
@@ -213,6 +288,8 @@
 
                     for(var i = 0; i<newData.length; i++) {
                         var row = tBody.insertRow();
+                        var c0 = row.insertCell();
+                        c0.innerHTML = newData[i].index;
                         var c1 = row.insertCell();
                         c1.innerHTML = newData[i].outcome;
                         var c2 = row.insertCell();
@@ -240,6 +317,17 @@
 
                 function roundTwo(num) {
                     return Math.round(num * 100) / 100;
+                }
+
+                // Quick grab from: https://stackoverflow.com/questions/1129216/sort-array-of-objects-by-string-property-value
+                function compare( a, b ) {
+                    if ( a.oppScore > b.oppScore ){
+                        return -1;
+                    }
+                    if ( a.oppScore < b.oppScore ){
+                        return 1;
+                    }
+                    return 0;
                 }
 
             }
