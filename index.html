@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+    <head>
+        <script src="https://cdn.rawgit.com/eligrey/canvas-toBlob.js/f1a01896135ab378aa5c0118eadd81da55e698d8/canvas-toBlob.js"></script>
+        <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
+        <script src="https://d3js.org/d3.v4.js"></script>    
+        <style>
+            body {
+                font-family: Arial, Helvetica, sans-serif
+            }
+            #container {
+                display: flex;
+                flex-direction: row;
+            }
+            #controls {
+                display: flex;
+                flex-direction: column;
+            }
+            #data-wrapper {
+                padding: 0;
+                border: 1px solid darkgray;
+                width: 400px;
+                height: 300px;
+                overflow: auto;
+            }
+            #input-data {
+                margin: 0;
+                border: 0;
+                padding: 0;
+                width: 400px;
+                height: 300px;
+                white-space: nowrap;
+                overflow: auto;
+            }
+            #input-table, th {
+                margin: 0;
+                border: 1px solid darkgray;
+                border-collapse: collapse;
+            }
+            th, td {
+                padding-left: 10px;
+                padding-right: 10px;
+            }
+            #input-table {
+                width: 400px;
+            }
+            #oppscores-table {
+                width:auto;
+                border: 1px solid darkgray;
+                border-collapse: collapse;
+            }
+            td {
+                font-family: monospace;
+            }
+            .important {
+                font-style: italic;
+            }
+
+        </style>
+    </head>
+    <body>
+        <h2>Opportunity Score and Map</h2>
+        Paste tab or comma-separated data formatted in <span class="important">3 columns (<b>Outcome, Importance, Satisfaction</b>), without headers</span>, as indicated by the sample below, then click on [Map data]:
+        <br />
+        <br />
+        <div id="container">
+            <div id="controls">
+                <h3>Input data</h3>
+                <table id="input-table">
+                    <tr>
+                        <th>Outcome</th>
+                        <th>Importance</th>
+                        <th>Satisfaction</th>
+                    </tr>
+                </table>
+
+                    <textarea id="input-data" placeholder="Paste tab or comma-separated data here"></textarea>
+
+                <button id="refresh">Map data</button>
+                <button id="clear">Clear data</button>
+                <button id="export" style="visibility:hidden;">Export map to PNG</button>
+            </div>
+            <div id="map_area"></div>
+        </div>
+        <h3>Opportunity Scores</h3>
+        <table id="oppscores-table">
+            <tr>
+                <th>Outcome</th>
+                <th>Importance</th>
+                <th>Satisfaction</th>
+                <th>OppScore</th>
+            </tr>
+        </table>
+
+        <script>
+            window.onload = function() {
+                function refresh(data) {
+                    // set the dimensions and margins of the graph
+                    var margin = {top: 10, right: 40, bottom: 30, left: 30},
+                        width = 500 - margin.left - margin.right,
+                        height = 450 - margin.top - margin.bottom;
+                    
+                    // append the svg object to the body of the page
+                    var SVG = d3.select("#map_area")
+                        .append("svg")
+                        .attr("width", width + margin.left + margin.right)
+                        .attr("height", height + margin.top + margin.bottom)
+                        .append("g")
+                        .attr("transform",
+                                "translate(" + margin.left + "," + margin.top + ")");
+
+                    
+                    // X scale and Axis
+                    var x = d3.scaleLinear()
+                        .domain([0, 10])         // This is the min and the max of the data: 0 to 100 if percentages
+                        .range([0, width]);       // This is the corresponding value I want in Pixel
+                    SVG
+                        .append('g')
+                        .attr("transform", "translate(0," + height + ")")
+                        .call(d3.axisBottom(x));
+                    
+                    // X scale and Axis
+                    var y = d3.scaleLinear()
+                        .domain([0, 10])         // This is the min and the max of the data: 0 to 100 if percentages
+                        .range([height, 0]);       // This is the corresponding value I want in Pixel
+                    SVG
+                        .append('g')
+                        .call(d3.axisLeft(y));
+                    
+                    // Add 3 dots for 0, 50 and 100%
+                    SVG
+                        .selectAll("whatever")
+                        .data(data)
+                        .enter()
+                        .append("circle")
+                        .attr("cx", function(d){ return x(d.x) })
+                        .attr("cy", function(d){ return y(d.y) })
+                        .style("fill", "red")
+                        .attr("r", 5)
+                }
+                refresh([]);
+                generateData();
+
+                d3.select("#refresh").on('click', function(e){
+                    //d3.selectAll("SVG > *").remove();
+                    //document.querySelector("#input-data").value = "";
+                    //document.querySelector("#export").style.visibility = "visible";
+                    var newData = parseData();
+                    var oppScoreData = calculateOppScores(newData);
+                    if (newData.length > 0) {
+                        if (d3.select("svg")) d3.select("svg").remove();
+                        asTable(oppScoreData);
+                        refresh(oppScoreData);   
+                    }
+                });
+
+                d3.select("#clear").on('click', function(e){
+                    d3.select("svg").remove();
+                    d3.select("#table-body").remove();
+                    document.querySelector("#input-data").value = "";
+                    document.querySelector("#input-data").style.display = "block";
+                    refresh([]);
+                });
+
+                function parseData() {
+                    var inputdata = document.querySelector("#input-data").value;
+                    var newData = Array();
+                    if(inputdata != "") {
+                        var lines = inputdata.split(/\n/);
+                        for(var i = 0; i<lines.length; i++) {
+                            var row = lines[i].split(/[\t,\,]/);
+                            if(row.length == 3)
+                                newData.push({outcome: row[0], x: row[1], y: row[2]})
+                        }
+                    }
+                    return newData;
+                }
+
+                function calculateOppScores(data) {
+                    var outcomes = Array();
+                    var OppScores = Array();
+                    for(var i = 0; i<data.length; i++)
+                        if(!outcomes.includes(data[i].outcome))
+                            outcomes.push(data[i].outcome);
+                    for(var i = 0; i<outcomes.length; i++) {
+                        var thisOutcome = outcomes[i];
+                        var sumImp = 0, sumSat = 0, countImp = 0, countSat = 0;
+                        for(var j = 0; j<data.length; j++) {
+                            var d = data[j];
+                            if(d.outcome == thisOutcome) {
+                                if(parseInt(d.x) > 3)
+                                    sumImp ++;
+                                countImp ++;
+                                if(parseInt(d.y) > 3)
+                                    sumSat ++;
+                                countSat ++;
+                            }
+                        }
+
+                        //(10* (sum(x>midpoint)/length(x))
+                        var meanImp = roundTwo(10 * (sumImp / countImp));
+                        var meanSat = roundTwo(10 * (sumSat / countSat));
+                        var oppScore = meanImp + (Math.max(meanImp-meanSat,0));
+                        console.log(sumImp)
+                        OppScores.push({ outcome: thisOutcome, x: meanImp, y: meanSat, oppScore: oppScore});
+                    }
+                    return OppScores;
+                }
+
+                function asTable(newData) {
+                    var table = document.querySelector("#oppscores-table");
+                    var tBody = document.createElement('tbody');
+                    tBody.id = "table-body";
+
+                    for(var i = 0; i<newData.length; i++) {
+                        var row = tBody.insertRow();
+                        var c1 = row.insertCell();
+                        c1.innerHTML = newData[i].outcome;
+                        var c2 = row.insertCell();
+                        c2.innerHTML = newData[i].x;
+                        c2.style.textAlign = "right";
+                        var c3 = row.insertCell();
+                        c3.innerHTML = newData[i].y;
+                        c3.style.textAlign = "right";
+                        var c4 = row.insertCell();
+                        c4.innerHTML = newData[i].oppScore;
+                        c4.style.textAlign = "right";
+                    }
+                    table.append(tBody);
+                }
+
+                function generateData() {
+                    var result = Array();
+                    for(var i=0; i<16; i++) {
+                        result[i] = {outcome:"Outcome_"+Math.floor(i/4), x: (Math.random()*4+1).toFixed(0), y: (Math.random()*4+1).toFixed(0)};
+                        document.querySelector("#input-data").value += (result[i].outcome + "\t"
+                                                        + result[i].x + "\t" + result[i].y + "\n");
+                    }
+                    return result;
+                }
+
+                function roundTwo(num) {
+                    return Math.round(num * 100) / 100;
+                }
+
+            }
+        </script>
+    </body>
+</html>
