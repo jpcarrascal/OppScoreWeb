@@ -3,6 +3,7 @@
         <script src="https://cdn.rawgit.com/eligrey/canvas-toBlob.js/f1a01896135ab378aa5c0118eadd81da55e698d8/canvas-toBlob.js"></script>
         <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
         <script src="https://d3js.org/d3.v4.js"></script>
+        <script src="saveSvgAsPng.js"></script>
         <style>
             body {
                 font-family: Arial, Helvetica, sans-serif;
@@ -74,6 +75,9 @@
                 padding-top: -5px;
                 padding-bottom: -5px;
             }
+            .hidden-button {
+                visibility: hidden;
+            }
         </style>
     </head>
     <body>
@@ -98,9 +102,10 @@
 
                     <button id="refresh">Map data</button>
                     <button id="clear">Clear data</button>
-                    <button id="export" style="visibility:hidden;">Export map to PNG</button>
+                    <button id="export-map" class="hidden-button">Export map to PNG</button>
+                    <button id="export-table" class="hidden-button">Export scores to CSV</button>
                 </div>
-                <div id="map_area"></div>
+                <div id="map-area"></div>
             </div>
             <h3>Opportunity Scores</h3>
             <table id="oppscores-table">
@@ -125,7 +130,7 @@
                         height = 450 - margin.top - margin.bottom;
                     
                     // append the svg object to the body of the page
-                    var SVG = d3.select("#map_area")
+                    var SVG = d3.select("#map-area")
                         .append("svg")
                         .attr("width", width + margin.left + margin.right)
                         .attr("height", height + margin.top + margin.bottom)
@@ -235,7 +240,7 @@
                 d3.select("#refresh").on('click', function(e){
                     //d3.selectAll("SVG > *").remove();
                     //document.querySelector("#input-data").value = "";
-                    //document.querySelector("#export").style.visibility = "visible";
+                    document.querySelectorAll(".hidden-button").forEach( elem => { elem.style.visibility = "visible" });
                     var newData = parseData();
                     var oppScoreData = calculateOppScores(newData);
                     if (newData.length > 0) {
@@ -243,6 +248,14 @@
                         asTable(oppScoreData);
                         refresh(oppScoreData);   
                     }
+                });
+
+                d3.select("#export-map").on('click', function(e){
+                    saveSvgAsPng(document.querySelector("svg"), "OppMap.png");
+                });
+
+                d3.select("#export-table").on('click', function(e){
+                    console.log(document.querySelector("Not yet implemented"))
                 });
 
                 d3.select("#clear").on('click', function(e){
@@ -292,12 +305,10 @@
                         var meanImp = roundTwo(10 * (sumImp / countImp));
                         var meanSat = roundTwo(10 * (sumSat / countSat));
                         var oppScore = meanImp + (Math.max(meanImp-meanSat,0));
-                        console.log(sumImp)
                         OppScores.push({ index: 0, outcome: thisOutcome, x: meanImp, y: meanSat, oppScore: oppScore});
                     }
 
                     OppScores.sort( compare );
-                    console.log(OppScores)
                     for(var i=0; i<OppScores.length; i++) {
                         OppScores[i].index = i+1;
                     }
