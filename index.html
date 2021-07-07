@@ -68,6 +68,12 @@
                 margin-top: 20px;
                 text-align: right;
             }
+            .big-red {
+                font-size: 2em;
+                color: red;
+                padding-top: -5px;
+                padding-bottom: -5px;
+            }
         </style>
     </head>
     <body>
@@ -99,7 +105,7 @@
             <h3>Opportunity Scores</h3>
             <table id="oppscores-table">
                 <tr>
-                    <th>&nbsp;</th>
+                    <th class="big-red">•</th>
                     <th>Outcome</th>
                     <th>Importance</th>
                     <th>Satisfaction</th>
@@ -107,7 +113,7 @@
                 </tr>
             </table>
             <div id="footer">
-                <a href="https://jucarra.github.io" target="_blank">jucarra.github.io</a>
+                <a href="https://jpcarrascal.github.io" target="_blank">jpcarrascal.github.io</a>
             </div>
         </div>
         <script>
@@ -325,8 +331,8 @@
 
                 function generateData() {
                     var result = Array();
-                    for(var i=0; i<16; i++) {
-                        result[i] = {outcome:"Outcome_"+Math.floor(i/4), x: (Math.random()*4+1).toFixed(0), y: (Math.random()*4+1).toFixed(0)};
+                    for(var i=0; i<32; i++) {
+                        result[i] = {outcome:"SampleData_"+(Math.floor(i/4)+1), x: (Math.random()*4+1).toFixed(0), y: (Math.random()*4+1).toFixed(0)};
                         document.querySelector("#input-data").value += (result[i].outcome + "\t"
                                                         + result[i].x + "\t" + result[i].y + "\n");
                     }
