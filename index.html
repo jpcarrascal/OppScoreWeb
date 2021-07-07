@@ -103,7 +103,7 @@
                     <button id="refresh">Map data</button>
                     <button id="clear">Clear data</button>
                     <button id="export-map" class="hidden-button">Export map to PNG</button>
-                    <button id="export-table" class="hidden-button">Export scores to CSV (not yet implemented)</button>
+                    <button id="export-table" class="hidden-button">Copy scores to clipboard</button>
                 </div>
                 <div id="map-area"></div>
             </div>
@@ -258,7 +258,12 @@
                 });
 
                 d3.select("#export-table").on('click', function(e){
-                    console.log(document.querySelector("Not yet implemented"))
+                    console.log(document.querySelector("Not yet implemented"));
+                    var tableElement = document.querySelector("#oppscores-table");
+                    selectElementContents(tableElement);
+                    document.execCommand('copy');
+                    document.querySelector("#export-table").innerText = "Copied!";
+                    setTimeout(() => {document.querySelector("#export-table").innerText = "Copy scores to clipboard"}, 3000);
                 });
 
                 d3.select("#clear").on('click', function(e){
@@ -266,6 +271,7 @@
                     d3.select("#table-body").remove();
                     document.querySelector("#input-data").value = "";
                     document.querySelector("#input-data").style.display = "block";
+                    document.querySelectorAll(".hidden-button").forEach( elem => { elem.style.visibility = "hidden" });
                     refresh([]);
                 });
 
@@ -366,6 +372,26 @@
                         return 1;
                     }
                     return 0;
+                }
+                // From: https://stackoverflow.com/questions/2044616/select-a-complete-table-with-javascript-to-be-copied-to-clipboard
+                function selectElementContents(el) {
+                    var body = document.body, range, sel;
+                    if (document.createRange && window.getSelection) {
+                        range = document.createRange();
+                        sel = window.getSelection();
+                        sel.removeAllRanges();
+                        try {
+                            range.selectNodeContents(el);
+                            sel.addRange(range);
+                        } catch (e) {
+                            range.selectNode(el);
+                            sel.addRange(range);
+                        }
+                    } else if (body.createTextRange) {
+                        range = body.createTextRange();
+                        range.moveToElementText(el);
+                        range.select();
+                    }
                 }
 
             }
