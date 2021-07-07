@@ -24,7 +24,7 @@
             }
             #input-data {
                 margin: 0;
-                border: 0;
+                border: 1px solid darkgray;
                 padding: 0;
                 width: 400px;
                 height: 300px;
@@ -59,7 +59,8 @@
     </head>
     <body>
         <h2>Opportunity Score and Map</h2>
-        Paste tab or comma-separated data formatted in <span class="important">3 columns (<b>Outcome, Importance, Satisfaction</b>), without headers</span>, as indicated by the sample below, then click on [Map data]:
+        Paste tab-separated data formatted in <span class="important">3 columns (<b>Outcome, Importance, Satisfaction</b>), without headers</span>, as indicated below, then click on [Map data].<br />
+        Sample data has been included for you to play around with. Click [Clear data] to enter your own data.
         <br />
         <br />
         <div id="container">
@@ -84,7 +85,7 @@
         <h3>Opportunity Scores</h3>
         <table id="oppscores-table">
             <tr>
-                <th></th>
+                <th>&nbsp;</th>
                 <th>Outcome</th>
                 <th>Importance</th>
                 <th>Satisfaction</th>
@@ -235,7 +236,7 @@
                     if(inputdata != "") {
                         var lines = inputdata.split(/\n/);
                         for(var i = 0; i<lines.length; i++) {
-                            var row = lines[i].split(/[\t,\,]/);
+                            var row = lines[i].split(/[\t]/);
                             if(row.length == 3)
                                 newData.push({outcome: row[0], x: row[1], y: row[2]})
                         }
