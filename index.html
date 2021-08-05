@@ -125,9 +125,9 @@
             window.onload = function() {
                 function refresh(data) {
                     // set the dimensions and margins of the graph
-                    var margin = {top: 10, right: 40, bottom: 30, left: 30},
-                        width = 500 - margin.left - margin.right,
-                        height = 450 - margin.top - margin.bottom;
+                    var margin = {top: 10, right: 40, bottom: 50, left: 50},
+                        width = 520 - margin.left - margin.right,
+                        height = 470 - margin.top - margin.bottom;
                     
                     // append the svg object to the body of the page
                     var SVG = d3.select("#map-area")
@@ -210,6 +210,27 @@
                         .attr("font-family", "sans-serif")
                         .style("font-size", "13px")
                         .style("fill", "lightgrey");
+                    // Axis labels
+                    SVG.append("text")     
+                        .attr("x", function (d) { return x(-5); } )
+                        .attr("y", function (d) { return y(10.6); } )
+                        .style("text-anchor", "middle")
+                        .text("Satisfaction")
+                        .attr("font-family", "sans-serif")
+                        .style("font-size", "13px")
+                        .style("fill", "grey")
+                        .attr("transform", function(d) {
+                                return "rotate(-90)" 
+                        });
+
+                    SVG.append("text")     
+                        .attr("x", function (d) { return x(5); } )
+                        .attr("y", function (d) { return y(-0.8); } )
+                        .style("text-anchor", "middle")
+                        .text("Importance")
+                        .attr("font-family", "sans-serif")
+                        .style("font-size", "13px")
+                        .style("fill", "grey");
 
                     // points:
                     var points = SVG
@@ -238,7 +259,7 @@
 
                 }
                 refresh([]);
-                generateData();
+                generateRandomData();
 
                 d3.select("#refresh").on('click', function(e){
                     //d3.selectAll("SVG > *").remove();
@@ -274,6 +295,9 @@
                     document.querySelectorAll(".hidden-button").forEach( elem => { elem.style.visibility = "hidden" });
                     refresh([]);
                 });
+
+                // Load sample data
+
 
                 function parseData() {
                     var inputdata = document.querySelector("#input-data").value;
@@ -314,6 +338,7 @@
                         var meanImp = roundTwo(10 * (sumImp / countImp));
                         var meanSat = roundTwo(10 * (sumSat / countSat));
                         var oppScore = meanImp + (Math.max(meanImp-meanSat,0));
+                        oppScore = Math.round((oppScore + Number.EPSILON) * 100) / 100;
                         OppScores.push({ index: 0, outcome: thisOutcome, x: meanImp, y: meanSat, oppScore: oppScore});
                     }
 
@@ -349,10 +374,11 @@
                     table.append(tBody);
                 }
 
-                function generateData() {
+                function generateRandomData() {
                     var result = Array();
-                    for(var i=0; i<32; i++) {
-                        result[i] = {outcome:"SampleData_"+(Math.floor(i/4)+1), x: (Math.random()*4+1).toFixed(0), y: (Math.random()*4+1).toFixed(0)};
+                    var N = 8;
+                    for(var i=0; i<64; i++) {
+                        result[i] = {outcome:"_SampleOutcome_"+(Math.floor(i/N)+1), x: Math.round(Math.random()*4+1), y: Math.round(Math.random()*4+1)};
                         document.querySelector("#input-data").value += (result[i].outcome + "\t"
                                                         + result[i].x + "\t" + result[i].y + "\n");
                     }

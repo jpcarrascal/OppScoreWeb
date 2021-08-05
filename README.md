@@ -1,3 +1,5 @@
 # OppScoreWeb
 Web app to compute and map Opportunity Scores
-Uses https://github.com/exupero/saveSvgAsPng
+Uses:
+- D3.js
+- https://github.com/exupero/saveSvgAsPng
