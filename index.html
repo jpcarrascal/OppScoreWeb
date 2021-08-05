@@ -78,13 +78,19 @@
             .hidden-button {
                 visibility: hidden;
             }
+            .ext-info {
+                font-style: italic;
+            }
         </style>
     </head>
     <body>
         <div id="wrapper">
             <h2>Opportunity Score and Map</h2>
-            Paste tab-separated data formatted in <span class="important">3 columns (<b>Outcome, Importance, Satisfaction</b>), without headers</span>, as indicated below, then click on [Map data].<br />
+            Paste tab-separated data formatted in <span class="important">3 columns (<b>Outcome, Importance, Satisfaction</b>), without headers</span>, as indicated below, then click on [Map data].
+            <br /><br />
             Sample data has been included for you to play around with. Click [Clear data] to enter your own data.
+            <br /><br />
+            <span class="ext-info">(For more information about the Opportunity Score and Map, check <a href="https://medium.com/uxr-microsoft/what-is-the-opportunity-score-and-how-to-obtain-it-bb81fcbf79b7" target="_blank">this blog post</a>.)</span>
             <br />
             <br />
             <div id="container">
@@ -259,11 +265,13 @@
 
                 }
                 refresh([]);
-                generateRandomData();
+                //generateRandomData();
+                readSampleData();
 
                 d3.select("#refresh").on('click', function(e){
                     //d3.selectAll("SVG > *").remove();
                     //document.querySelector("#input-data").value = "";
+                    d3.select("#table-body").remove();
                     document.querySelectorAll(".hidden-button").forEach( elem => { elem.style.visibility = "visible" });
                     var newData = parseData();
                     var oppScoreData = calculateOppScores(newData);
@@ -297,7 +305,18 @@
                 });
 
                 // Load sample data
-
+                function readSampleData() {
+                    var result = Array();
+                    d3.csv("https://raw.githubusercontent.com/jpcarrascal/OppScoreWeb/main/sampledata.csv", function(data) {
+                        for (var i = 0; i < data.length; i++) {
+                            result[i] = {outcome: data[i].outcome, x: data[i].importance, y: data[i].satisfaction}
+                            document.querySelector("#input-data").value += (result[i].outcome + "\t"
+                                                        + result[i].x + "\t" + result[i].y + "\n");
+                        }
+                        console.log("Read "+i+" rows");
+                    });
+                    return result;
+                }
 
                 function parseData() {
                     var inputdata = document.querySelector("#input-data").value;
@@ -319,16 +338,30 @@
                     for(var i = 0; i<data.length; i++)
                         if(!outcomes.includes(data[i].outcome))
                             outcomes.push(data[i].outcome);
+                    // Remove rows with missing values:
+                    var incompleteRows = 0;
+                    var initialDataLength = data.length;
+                    for(var i = 0; i<data.length; i++) {
+                        data[i].x = parseInt(data[i].x);
+                        data[i].y = parseInt(data[i].y);
+                        if( !Number.isInteger(data[i].x) || !Number.isInteger(data[i].y) ) {
+                            data.splice(i,1);
+                            incompleteRows++;
+                        }
+                    }
+                    console.log(initialDataLength + " input rows.");
+                    console.log(incompleteRows + " missing values found. Rows removed.");
+                    console.log(data.length + " rows used in calculation.")
                     for(var i = 0; i<outcomes.length; i++) {
                         var thisOutcome = outcomes[i];
                         var sumImp = 0, sumSat = 0, countImp = 0, countSat = 0;
                         for(var j = 0; j<data.length; j++) {
                             var d = data[j];
-                            if(d.outcome == thisOutcome) {
-                                if(parseInt(d.x) > 3)
+                            if( d.outcome == thisOutcome ) {
+                                if(d.x > 3)
                                     sumImp ++;
                                 countImp ++;
-                                if(parseInt(d.y) > 3)
+                                if(d.y > 3)
                                     sumSat ++;
                                 countSat ++;
                             }
