@@ -129,6 +129,11 @@
         </div>
         <script>
             window.onload = function() {
+                var removeMissing = true;
+                if (window.location.search.substr("keepMissing")) {
+                    console.log("Rows with missing values will not be removed")
+                    removeMissing = false;
+                }
                 function refresh(data) {
                     // set the dimensions and margins of the graph
                     var margin = {top: 10, right: 40, bottom: 50, left: 50},
@@ -341,17 +346,19 @@
                     // Remove rows with missing values:
                     var incompleteRows = 0;
                     var initialDataLength = data.length;
-                    for(var i = 0; i<data.length; i++) {
-                        data[i].x = parseInt(data[i].x);
-                        data[i].y = parseInt(data[i].y);
-                        if( !Number.isInteger(data[i].x) || !Number.isInteger(data[i].y) ) {
-                            data.splice(i,1);
-                            incompleteRows++;
+                    if(removeMissing) {
+                        for(var i = 0; i<data.length; i++) {
+                            data[i].x = parseInt(data[i].x);
+                            data[i].y = parseInt(data[i].y);
+                            if( !Number.isInteger(data[i].x) || !Number.isInteger(data[i].y) ) {
+                                data.splice(i,1);
+                                incompleteRows++;
+                            }
                         }
+                        console.log(initialDataLength + " input rows.");
+                        console.log(incompleteRows + " missing values found. Rows removed.");
+                        console.log(data.length + " rows used in calculation.")
                     }
-                    console.log(initialDataLength + " input rows.");
-                    console.log(incompleteRows + " missing values found. Rows removed.");
-                    console.log(data.length + " rows used in calculation.")
                     for(var i = 0; i<outcomes.length; i++) {
                         var thisOutcome = outcomes[i];
                         var sumImp = 0, sumSat = 0, countImp = 0, countSat = 0;
