@@ -86,7 +86,7 @@
     <body>
         <div id="wrapper">
             <h2>Opportunity Score and Map</h2>
-            Paste tab-separated data formatted in <span class="important">3 columns (<b>Outcome, Importance, Satisfaction</b>), without headers</span>, as indicated below, then click on [Map data].
+            Import a CSV file or paste tab or comma-separated data formatted in <span class="important">3 columns (<b>Outcome, Importance, Satisfaction</b>), </span>, as indicated below, then click on [Map data].
             <br /><br />
             Sample data has been included for you to play around with. Click [Clear data] to enter your own data.
             <br /><br />
@@ -96,6 +96,8 @@
             <div id="container">
                 <div id="controls">
                     <h3>Input data</h3>
+                    <input type="file" id="file-selector" accept=".csv" single />
+                    <p id="status"> </p>
                     <table id="input-table">
                         <tr>
                             <th>Outcome</th>
@@ -278,7 +280,8 @@
                     //document.querySelector("#input-data").value = "";
                     d3.select("#table-body").remove();
                     document.querySelectorAll(".hidden-button").forEach( elem => { elem.style.visibility = "visible" });
-                    var newData = parseData();
+                    var inputdata = document.querySelector("#input-data").value;
+                    var newData = parseData(inputdata);
                     var oppScoreData = calculateOppScores(newData);
                     if (newData.length > 0) {
                         if (d3.select("svg")) d3.select("svg").remove();
@@ -300,13 +303,17 @@
                     setTimeout(() => {document.querySelector("#export-table").innerText = "Copy scores to clipboard"}, 3000);
                 });
 
-                d3.select("#clear").on('click', function(e){
+                function clearData() {
                     d3.select("svg").remove();
                     d3.select("#table-body").remove();
                     document.querySelector("#input-data").value = "";
                     document.querySelector("#input-data").style.display = "block";
                     document.querySelectorAll(".hidden-button").forEach( elem => { elem.style.visibility = "hidden" });
                     refresh([]);
+                }
+
+                d3.select("#clear").on('click', function(e){
+                    clearData();
                 });
 
                 // Load sample data
@@ -323,17 +330,81 @@
                     return result;
                 }
 
-                function parseData() {
-                    var inputdata = document.querySelector("#input-data").value;
+                // Read CSV file (borrowed from https://web.dev/read-files/)
+                const status = document.getElementById('status');
+                if (window.FileList && window.File && window.FileReader) {
+                    document.getElementById('file-selector').addEventListener('change', event => {
+                        clearData();
+                        status.textContent = '';
+                        const file = event.target.files[0];
+                        if (!file.type) {
+                            status.textContent = 'Error: The File.type property does not appear to be supported on this browser.';
+                            return;
+                        }
+                        /*
+                        if (!file.type.match('text/csv')) {
+                            status.textContent = 'Error: The selected file does not appear to be a CSV file.'
+                            return;
+                        }*/
+                        const reader = new FileReader();
+                        reader.addEventListener('load', event => {
+                            parseData(event.target.result);
+                        });
+                        reader.readAsText(file,"UTF-8");
+                        console.log(reader.result);
+                    }); 
+                }
+
+
+                function parseData(inputdata) {
                     var newData = Array();
+                    var newDisplayData = "";
+                    var incompleteRows = 0;
+                    var garbageRows = 0;
                     if(inputdata != "") {
                         var lines = inputdata.split(/\n/);
+                        var initialDataLength = 0;
                         for(var i = 0; i<lines.length; i++) {
-                            var row = lines[i].split(/[\t]/);
-                            if(row.length == 3)
-                                newData.push({outcome: row[0], x: row[1], y: row[2]})
+                            if(lines[i] != "") {
+                                initialDataLength++;
+                                var row = lines[i].split(/[\t,\,]/);
+                                row[1] = parseInt(row[1]);
+                                row[2] = parseInt(row[2]);
+                                if(row.length > 3) {
+                                    console.log("Row too long! Removed: " + row);
+                                    status.textContent = "Too many columns in CSV file!"
+                                    garbageRows++;
+                                } else if(row.length == 3 && Number.isInteger(row[1]) && Number.isInteger(row[2]) ) {
+                                    newData.push({outcome: row[0], x: row[1], y: row[2]});
+                                    newDisplayData += row[0] + "\t" + row[1] + "\t" + row[2] + "\n";
+                                } else if ( row.length == 3 && ( !Number.isInteger(row[1]) && !Number.isInteger(row[2]) ) ) {
+                                    console.log("Row removed: " + row);
+                                    garbageRows++;
+                                } else if ( row.length == 3 && ( !Number.isInteger(row[1]) || !Number.isInteger(row[2]) ) ) {
+                                    if(removeMissing) { // Remove rows with missing values:
+                                        console.log("Row removed: " + row);
+                                    } else {
+                                        if(isNaN(row[1])) row[1] = "";
+                                        if(isNaN(row[2])) row[2] = "";
+                                        newData.push({outcome: row[0], x: row[1], y: row[2]});
+                                        newDisplayData += row[0] + "\t" + row[1] + "\t" + row[2] + "\n";
+                                        console.log("Incomplete row kept: " + row);
+                                    }
+                                    incompleteRows++;
+                                } else {
+                                    console.log("Row removed: " + row);
+                                    garbageRows++;
+                                } 
+                            }
                         }
                     }
+                    console.log("---");
+                    console.log(initialDataLength + " input rows.");
+                    console.log(incompleteRows + " missing values found.");
+                    console.log(garbageRows + " invalid rows found (e.g. header?).");
+                    if(removeMissing) console.log(incompleteRows + " rows removed.");
+                    console.log(newData.length + " rows used in calculation.");
+                    document.querySelector("#input-data").value = newDisplayData;
                     return newData;
                 }
 
@@ -343,22 +414,6 @@
                     for(var i = 0; i<data.length; i++)
                         if(!outcomes.includes(data[i].outcome))
                             outcomes.push(data[i].outcome);
-                    // Remove rows with missing values:
-                    var incompleteRows = 0;
-                    var initialDataLength = data.length;
-                    if(removeMissing) {
-                        for(var i = 0; i<data.length; i++) {
-                            data[i].x = parseInt(data[i].x);
-                            data[i].y = parseInt(data[i].y);
-                            if( !Number.isInteger(data[i].x) || !Number.isInteger(data[i].y) ) {
-                                data.splice(i,1);
-                                incompleteRows++;
-                            }
-                        }
-                        console.log(initialDataLength + " input rows.");
-                        console.log(incompleteRows + " missing values found. Rows removed.");
-                        console.log(data.length + " rows used in calculation.")
-                    }
                     for(var i = 0; i<outcomes.length; i++) {
                         var thisOutcome = outcomes[i];
                         var sumImp = 0, sumSat = 0, countImp = 0, countSat = 0;
