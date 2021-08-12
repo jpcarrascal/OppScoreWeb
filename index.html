@@ -13,13 +13,26 @@
                 background-color:lightgray;
             }
             #wrapper {
-                width: 900px;
+                width: 1000px;
                 background-color: white;
                 padding: 30px;
             }
-            #container {
+            #container, #output-container {
                 display: flex;
                 flex-direction: row;
+                justify-content: space-between;
+            }
+            #input-buttons {
+                margin-top: 10px;
+                display: flex;
+                flex-direction: row;
+            }
+            button {
+                flex-grow: 1;
+                margin: 2px;
+                font-size: 1em;
+                color: white;
+                background-color: #5599EE;
             }
             #controls {
                 display: flex;
@@ -28,18 +41,22 @@
             #data-wrapper {
                 padding: 0;
                 border: 1px solid darkgray;
-                width: 400px;
+                width: 500px;
                 height: 300px;
                 overflow: auto;
+            }
+            #input-container {
+                margin: 0;
             }
             #input-data {
                 margin: 0;
                 border: 1px solid darkgray;
                 padding: 0;
-                width: 400px;
-                height: 300px;
+                width: 500px;
+                height: 100px;
                 white-space: nowrap;
                 overflow: auto;
+                resize: none;
             }
             #input-table, th {
                 margin: 0;
@@ -50,13 +67,19 @@
                 padding-left: 10px;
                 padding-right: 10px;
             }
+
             #input-table {
-                width: 400px;
+                width: 500px;
             }
+
             #oppscores-table {
                 width:auto;
-                border: 1px solid darkgray;
+                border: 1px solid black;
                 border-collapse: collapse;
+                margin-top: 10px;
+            }
+            #oppscores-table th {
+                border: 1px solid black;
             }
             td {
                 font-family: monospace;
@@ -81,50 +104,64 @@
             .ext-info {
                 font-style: italic;
             }
+            #status {
+                color: red;
+            }
         </style>
     </head>
     <body>
         <div id="wrapper">
             <h2>Opportunity Score and Map</h2>
-            Import a CSV file or paste tab or comma-separated data formatted in <span class="important">3 columns (<b>Outcome, Importance, Satisfaction</b>), </span>, as indicated below, then click on [Map data].
+            Import a CSV file or paste tab- or comma-separated data formatted in <span class="important">3 columns (<b>Outcome, Importance, Satisfaction</b>)</span>, as indicated below, then click on [Map data].
             <br /><br />
             Sample data has been included for you to play around with. Click [Clear data] to enter your own data.
             <br /><br />
             <span class="ext-info">(For more information about the Opportunity Score and Map, check <a href="https://medium.com/uxr-microsoft/what-is-the-opportunity-score-and-how-to-obtain-it-bb81fcbf79b7" target="_blank">this blog post</a>.)</span>
             <br />
             <br />
+            <h3>Input data</h3>
             <div id="container">
                 <div id="controls">
-                    <h3>Input data</h3>
                     <input type="file" id="file-selector" accept=".csv" single />
                     <p id="status"> </p>
-                    <table id="input-table">
+                    <div id="input-container">
+                        <table id="input-table">
+                            <tr>
+                                <th>Outcome</th>
+                                <th>Importance</th>
+                                <th>Satisfaction</th>
+                            </tr>
+                        </table>
+    
+                        <textarea id="input-data" placeholder="Paste tab or comma-separated data here"></textarea>
+                    </div>
+                    <div id="input-buttons">
+                        <button id="refresh">Map data</button>
+                        <button id="clear">Clear data</button>
+                    </div>
+                </div>
+
+            </div>
+            <div id="output-container">
+                <div>
+                    <h3>Opportunity Map/Landscape</h3>
+                    <button id="export-map" class="hidden-button">Export map to PNG</button>
+                    <div id="map-area"></div>
+                </div>
+                <div>
+                    <h3>Opportunity Scores</h3>
+                    <button id="export-table" class="hidden-button">Copy scores to clipboard</button>
+                    <table id="oppscores-table">
                         <tr>
+                            <th class="big-red">•</th>
                             <th>Outcome</th>
                             <th>Importance</th>
                             <th>Satisfaction</th>
+                            <th>OppScore</th>
                         </tr>
                     </table>
-
-                        <textarea id="input-data" placeholder="Paste tab or comma-separated data here"></textarea>
-
-                    <button id="refresh">Map data</button>
-                    <button id="clear">Clear data</button>
-                    <button id="export-map" class="hidden-button">Export map to PNG</button>
-                    <button id="export-table" class="hidden-button">Copy scores to clipboard</button>
                 </div>
-                <div id="map-area"></div>
             </div>
-            <h3>Opportunity Scores</h3>
-            <table id="oppscores-table">
-                <tr>
-                    <th class="big-red">•</th>
-                    <th>Outcome</th>
-                    <th>Importance</th>
-                    <th>Satisfaction</th>
-                    <th>OppScore</th>
-                </tr>
-            </table>
             <div id="footer">
                 <a href="https://jpcarrascal.github.io" target="_blank">jpcarrascal.github.io</a>
             </div>
@@ -138,7 +175,7 @@
                 }
                 function refresh(data) {
                     // set the dimensions and margins of the graph
-                    var margin = {top: 10, right: 40, bottom: 50, left: 50},
+                    var margin = {top: 10, right: 10, bottom: 50, left: 50},
                         width = 520 - margin.left - margin.right,
                         height = 470 - margin.top - margin.bottom;
                     
@@ -279,11 +316,12 @@
                     //d3.selectAll("SVG > *").remove();
                     //document.querySelector("#input-data").value = "";
                     d3.select("#table-body").remove();
-                    document.querySelectorAll(".hidden-button").forEach( elem => { elem.style.visibility = "visible" });
                     var inputdata = document.querySelector("#input-data").value;
                     var newData = parseData(inputdata);
-                    var oppScoreData = calculateOppScores(newData);
                     if (newData.length > 0) {
+                        document.querySelectorAll(".hidden-button").forEach( elem => { elem.style.visibility = "visible" });
+                        // TODO: clear input file
+                        var oppScoreData = calculateOppScores(newData);
                         if (d3.select("svg")) d3.select("svg").remove();
                         asTable(oppScoreData);
                         refresh(oppScoreData);   
@@ -345,13 +383,13 @@
                         if (!file.type.match('text/csv')) {
                             status.textContent = 'Error: The selected file does not appear to be a CSV file.'
                             return;
-                        }*/
+                        }
+                        */
                         const reader = new FileReader();
                         reader.addEventListener('load', event => {
                             parseData(event.target.result);
                         });
                         reader.readAsText(file,"UTF-8");
-                        console.log(reader.result);
                     }); 
                 }
 
