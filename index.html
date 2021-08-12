@@ -466,8 +466,6 @@
                                 countSat ++;
                             }
                         }
-
-                        //(10* (sum(x>midpoint)/length(x))
                         var meanImp = roundTwo(10 * (sumImp / countImp));
                         var meanSat = roundTwo(10 * (sumSat / countSat));
                         var oppScore = meanImp + (Math.max(meanImp-meanSat,0));
