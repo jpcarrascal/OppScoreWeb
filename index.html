@@ -329,10 +329,13 @@
                     var newData = parsePastedData(inputdata);
                     if (newData.length > 0) {
                         document.querySelectorAll(".hidden-button").forEach( elem => { elem.style.visibility = "visible" });
+                        status.textContent = "";
                         var oppScoreData = calculateOppScores(newData);
                         if (d3.select("svg")) d3.select("svg").remove();
                         asTable(oppScoreData);
                         refresh(oppScoreData);   
+                    } else {
+                        status.textContent = "Data missing or wrong format. Columns should be [outcome, importance, satisfaction]";
                     }
                 });
 
