@@ -2,6 +2,17 @@
     <head>
         <script src="https://cdn.rawgit.com/eligrey/FileSaver.js/e9d941381475b5df8b7d7691013401e171014e89/FileSaver.min.js"></script>
         <script src="https://d3js.org/d3.v4.js"></script>
+        <!-- Google Analytics -->
+        <!-- Global site tag (gtag.js) - Google Analytics -->
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-15242862-11"></script>
+        <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'UA-15242862-11');
+        </script>
+    <!-- End Google Analytics -->
         <script type="module">
             import {csvParse} from "https://cdn.skypack.dev/d3-dsv@3";
         </script>
@@ -173,7 +184,7 @@
                     <button id="export-map" class="hidden-button">Export landscape/map to PNG</button>
                     <div id="map-area"></div>
                 </div>
-                
+
             </div>
             <div id="footer">
                 <a href="https://jpcarrascal.github.io" target="_blank">jpcarrascal.github.io</a>
