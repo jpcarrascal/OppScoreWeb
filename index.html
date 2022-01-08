@@ -178,6 +178,11 @@
                 text-decoration: underline;
             }
 
+            #output-log {
+                font-family: monospace;
+                border: 1px solid darkgray;
+            }
+
         </style>
     </head>
     <body>
@@ -267,6 +272,9 @@
                     <div id="map-area"></div>
                 </div>
 
+            </div>
+            <h4>Output log:</h4>
+            <div id="output-log">
             </div>
             <div id="footer">
                 <a href="https://jpcarrascal.github.io" target="_blank">jpcarrascal.github.io</a>
@@ -443,7 +451,6 @@
                 });
 
                 d3.select("#export-table").on('click', function(e){
-                    console.log(document.querySelector("Not yet implemented"));
                     var tableElement = document.querySelector("#oppscores-table");
                     selectElementContents(tableElement);
                     document.execCommand('copy');
@@ -468,7 +475,8 @@
                 });
 
                 d3.select("#alt-open").on('click', function(e){
-                    document.querySelector("#input-data").value = "";
+                    document.querySelector("#file-selector").value = null;
+                    clearData();
                     document.querySelector("#alt-modal").style.display = "flex";
                     var surveyData = "https://raw.githubusercontent.com/jpcarrascal/OppScoreWeb/main/sampleSurveyData.csv";
                     fetch(surveyData)
@@ -511,7 +519,7 @@
                             destination.value += (result[i].outcome + "\t"
                                                         + result[i].x + "\t" + result[i].y + "\n");
                         }
-                        console.log("Read "+i+" rows");
+                        console.log("Read "+i+" rows from sample file");
                     });
                     return result;
                 }
@@ -544,8 +552,7 @@
                 }
 
                 function parseFileData(data) {
-                    console.log("---");
-                    console.log("Parsing data from file...")
+                    outputLog("Parsing data from file...");
                     initialDataLength = data.length;
                     var newDisplayData = "";
                     var incompleteRows = 0;
@@ -561,14 +568,12 @@
                         data[i].satisfaction = parseInt(data[i].satisfaction);
                         if( !Number.isInteger(data[i].importance) && !Number.isInteger(data[i].satisfaction) ) {
                             incompleteRows++;
-                            console.log("Malformed row removed: ");
-                            console.log(data[i]);
+                            outputLog("Malformed row removed: " + data[i]);
                             data.splice(i,1);
                         }
                         else if( !Number.isInteger(data[i].importance) || !Number.isInteger(data[i].satisfaction) ) {
                             if(removeMissing) {
-                                console.log("Incomplete row removed: ");
-                                console.log(data[i]);
+                                outputLog("Incomplete row removed: " + data[i]);
                                 data.splice(i,1);
                             }
                             incompleteRows++;
@@ -577,12 +582,19 @@
                         }   
                     }
                     document.querySelector("#input-data").value = newDisplayData;
-                    console.log(initialDataLength + " input rows.");
-                    console.log(incompleteRows + " missing values found.");
-                    console.log(garbageRows + " invalid rows found (e.g. header?).");
-                    if(removeMissing) console.log(incompleteRows + " rows removed.");
-                    console.log(data.length + " rows used in calculation.");
+                    outputLog(initialDataLength + " input rows.");
+                    outputLog(incompleteRows + " missing values found.");
+                    outputLog(garbageRows + " invalid rows found (e.g. header?).");
+                    if(removeMissing) outputLog(incompleteRows + " rows removed.");
+                    outputLog(data.length + " rows used in calculation.");
                     return data;
+                }
+
+                function outputLog(line) {
+                    console.log(line);
+                    var log = document.getElementById("output-log");
+                    log.innerText += line;
+                    log.innerText += "\n";
                 }
 
                 function objJoin(obj) {
@@ -594,7 +606,6 @@
                 }
 
                 function parsePastedData(inputdata) {
-                    console.log("---");
                     var newData = Array();
                     var newDisplayData = "";
                     var incompleteRows = 0;
@@ -609,38 +620,38 @@
                                 row[1] = parseInt(row[1]);
                                 row[2] = parseInt(row[2]);
                                 if(row.length > 3) {
-                                    console.log("Row too long! Removed: " + row);
+                                    outputLog("Row removed (row too long): " + row);
                                     status.textContent = "Too many columns! (they should be [outcome, importance, satisfaction])"
                                     garbageRows++;
                                 } else if(row.length == 3 && Number.isInteger(row[1]) && Number.isInteger(row[2]) ) {
                                     newData.push({outcome: row[0], x: row[1], y: row[2]});
                                     newDisplayData += row[0] + "\t" + row[1] + "\t" + row[2] + "\n";
                                 } else if ( row.length == 3 && ( !Number.isInteger(row[1]) && !Number.isInteger(row[2]) ) ) {
-                                    console.log("Row removed: " + row);
+                                    outputLog("Row removed (non-numeric or missing values): " + row);
                                     garbageRows++;
                                 } else if ( row.length == 3 && ( !Number.isInteger(row[1]) || !Number.isInteger(row[2]) ) ) {
                                     if(removeMissing) { // Remove rows with missing values:
-                                        console.log("Row removed: " + row);
+                                        outputLog("Row removed (missing values): " + row);
                                     } else {
                                         if(isNaN(row[1])) row[1] = "";
                                         if(isNaN(row[2])) row[2] = "";
                                         newData.push({outcome: row[0], x: row[1], y: row[2]});
                                         newDisplayData += row[0] + "\t" + row[1] + "\t" + row[2] + "\n";
-                                        console.log("Incomplete row kept: " + row);
+                                        outputLog("Incomplete row kept: " + row);
                                     }
                                     incompleteRows++;
                                 } else {
-                                    console.log("Row removed: " + row);
+                                    outputLog("Row removed: " + row);
                                     garbageRows++;
                                 } 
                             }
                         }
                     }
-                    console.log(initialDataLength + " input rows.");
-                    console.log(incompleteRows + " missing values found.");
-                    console.log(garbageRows + " invalid rows found (e.g. header?).");
+                    outputLog(initialDataLength + " input rows.");
+                    outputLog(incompleteRows + " missing values found.");
+                    outputLog(garbageRows + " invalid rows found (e.g. header?).");
                     if(removeMissing) console.log(incompleteRows + " rows removed.");
-                    console.log(newData.length + " rows used in calculation.");
+                    outputLog(newData.length + " rows used in calculation.");
                     document.querySelector("#input-data").value = newDisplayData;
                     return newData;
                 }
