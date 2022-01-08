@@ -34,8 +34,9 @@
                 display: flex;
                 flex-direction: row;
                 justify-content: space-between;
+                margin-top: 20px;
             }
-            #input-buttons {
+            .input-buttons {
                 margin-top: 10px;
                 display: flex;
                 flex-direction: row;
@@ -121,16 +122,68 @@
             #status {
                 color: red;
             }
+
+            #alt-open {
+                color:#5599EE;
+                font-weight: bold;
+                cursor: pointer;
+            }
+
+            #alt-open:hover {
+                text-decoration: underline;
+            }
+
+            #alt-open:active {
+                color: black;
+            }
+
+            #alt-modal {
+                display: none;
+                flex-direction: column;
+                align-items: center;
+                align-content: center;
+                position: absolute;
+                width: 700px;
+                padding: 30px;
+                background-color: #DDD;
+                top: 50px;
+                box-shadow: rgba(0,0,0,0.3) 15px 15px;
+            }
+
+            #alt-data {
+                width: 80%;
+                resize: none;
+                margin: 20px;
+            }
+
         </style>
     </head>
     <body>
+        <div id="alt-modal">
+            Data coming from a survey tool?
+            <ul>
+                <li>Each row is a response</li>
+                <li>Qualtrics and Survey Monkey exports should be almost ready to go.
+                    just make sure you add 'importance' and 'satisfaction' to each column (first row of your data).
+                    Each outcome must appear twice (once for for Outcome Importance and once for Outcome Satisfaction).
+                    Thus, there must be an even number of columns.</li>
+            </ul>
+            <textarea id="alt-data" rows="20" cols="70"></textarea>
+            <div class="input-buttons">
+                <button id="alt-clear">Clear data</button>
+                <button id="alt-reformat">Reformat data</button>
+            </div>
+        </div>
         <div id="wrapper">
             <h2>Opportunity Score and Map Generator (beta)</h2>
             <h3>Input data</h3>
             <ul>
-                <li>Import a CSV file that includes <span class="important">these 3 columns <b>[outcome, importance, satisfaction]</b></span>,or</li>
+                <li>Import a CSV file that includes <span class="important">these 3 columns <b>[outcome, importance, satisfaction]</b></span>,<br/>-or-</li>
                 <li>paste tab- or comma-separated data formatted in <span class="important">3 columns <b>[outcome, importance, satisfaction]</b></span></li>
-                <li>Importance and Satisfaction should be in a 1-5 scale (1=low importance/5=high importance; 1=low satisfaction/5=high satisfaction).</b></span></li>
+                <li><b>importance</b> and <b>satisfaction</b> should be in a 1-5 scale (1=low importance/5=high importance; 1=low satisfaction/5=high satisfaction).</b></span></li>
+                <!--
+                <li>If your data is in a different format (e.g. output from a survey tool), <span id="alt-open">click here</span> for more options.</li>
+                -->
             </ul>
 
             <div id="container">
@@ -148,7 +201,7 @@
     
                         <textarea id="input-data" placeholder="Paste tab or comma-separated data here"></textarea>
                     </div>
-                    <div id="input-buttons">
+                    <div class="input-buttons">
                         <button class="map-data">Map data</button>
                         <button id="clear">Clear data</button>
                     </div>
@@ -335,13 +388,15 @@
                 }
                 refresh([]);
                 //generateRandomData();
-                readSampleData();
+                var sampleDataURL = "https://raw.githubusercontent.com/jpcarrascal/OppScoreWeb/main/sampledata.csv";
+                var inputElement = document.querySelector("#input-data");
+                readCSVData(sampleDataURL, document.querySelector("#input-data"));
 
                 d3.select(".map-data").on('click', function(e){
                     //d3.selectAll("SVG > *").remove();
                     //document.querySelector("#input-data").value = "";
                     d3.select("#table-body").remove();
-                    var inputdata = document.querySelector("#input-data").value;
+                    var inputdata = inputElement.value;
                     var newData = parsePastedData(inputdata);
                     if (newData.length > 0) {
                         document.querySelectorAll(".hidden-button").forEach( elem => { elem.style.visibility = "visible" });
@@ -384,13 +439,32 @@
                     clearData();
                 });
 
+                d3.select("#alt-open").on('click', function(e){
+                    console.log("fds")
+                    document.querySelector("#alt-modal").style.display = "flex";
+                    var surveyData = "https://raw.githubusercontent.com/jpcarrascal/OppScoreWeb/main/sampleSurveyData.csv";
+                    readCSVData(sampleDataURL, document.querySelector("#alt-data"));
+                });
+
+                d3.select("#alt-reformat").on('click', function(e){
+                    var outElem = document.querySelector("#input-data");
+                    var inData = document.querySelector("#alt-data").value;
+                    console.log(inData)
+                    try {
+                        outElem.value = reformatData(inData);
+                    } catch(error) {
+                        alert(error)
+                    }
+                });
+
+
                 // Load sample data
-                function readSampleData() {
+                function readCSVData(sourceURL, destination) {
                     var result = Array();
-                    d3.csv("https://raw.githubusercontent.com/jpcarrascal/OppScoreWeb/main/sampledata.csv", function(data) {
+                    d3.csv(sourceURL, function(data) {
                         for (var i = 0; i < data.length; i++) {
                             result[i] = {outcome: data[i].outcome, x: data[i].importance, y: data[i].satisfaction}
-                            document.querySelector("#input-data").value += (result[i].outcome + "\t"
+                            destination.value += (result[i].outcome + "\t"
                                                         + result[i].x + "\t" + result[i].y + "\n");
                         }
                         console.log("Read "+i+" rows");
@@ -584,6 +658,50 @@
                         c4.style.textAlign = "right";
                     }
                     table.append(tBody);
+                }
+
+                function reformatData(input) {
+                    var data = input.split("\n");
+                    if(!data[0].toLowerCase().includes("satisfaction") ||
+                        !data[0].toLowerCase().includes("importance")) {
+                        //alert("ERROR: Every column should be labeled as 'importance' or 'satisfaction'!!!");
+                        throw("ERROR: Every column should be labeled as 'importance' or 'satisfaction'!!!");
+                    }
+                    var impsats = data[0].split(/[\t,\,]/);
+                    var numCols = impsats.length;
+                    if(numCols % 2) {
+                        //alert("ERROR: There must be an even number of columns! (importance + satisfaction)");
+                        throw("ERROR: There must be an even number of columns! (importance + satisfaction)");
+                    } else {
+                        var outcomes = data[1].split(/[\t,\,]/);
+                        // Unique array elements, from: https://stackoverflow.com/questions/9229645/remove-duplicate-values-from-js-array
+                        var uniqueOutcomes = outcomes.filter(function(item, pos, self) {
+                                                    return self.indexOf(item) == pos; });
+                        var numOutcomes = uniqueOutcomes.length;
+                        var outputArray = new Array();
+                        for(var i=2; i<data.length; i++) {
+                            var dp = new Object();
+                            //dp.p = "P"+(i-1);
+                            var scores = data[i].split(/[\t,\,]/);
+                            for(o=0; o<uniqueOutcomes.length; o++) {
+                                var currentOutcome = uniqueOutcomes[o];
+                                for(var j=0; j<numCols; j++) {
+                                    if(outcomes[j] ==currentOutcome) {
+                                        dp.outcome = outcomes[j];
+                                        if(impsats[j] == "importance")
+                                            dp.importance = scores[j];
+                                        else
+                                            dp.satisfaction = scores[j];
+                                    }
+                                }
+                                //var row = [dp.p, dp.outcome, dp.importance, dp.satisfaction].join("\t");
+                                var row = [dp.outcome, dp.importance, dp.satisfaction].join("\t");
+                                outputArray.push(row);
+                            }
+                        }
+                        var output = outputArray.join("\n");                 
+                    }
+                    return output;
                 }
 
                 function generateRandomData() {
