@@ -571,12 +571,12 @@
                         data[i].satisfaction = parseInt(data[i].satisfaction);
                         if( !Number.isInteger(data[i].importance) && !Number.isInteger(data[i].satisfaction) ) {
                             incompleteRows++;
-                            outputLog("Malformed row removed: " + data[i]);
+                            outputLog("Malformed row "+i+" removed: " + data[i]);
                             data.splice(i,1);
                         }
                         else if( !Number.isInteger(data[i].importance) || !Number.isInteger(data[i].satisfaction) ) {
                             if(removeMissing) {
-                                outputLog("Incomplete row removed: " + data[i]);
+                                outputLog("Incomplete row "+i+" removed: " + data[i]);
                                 data.splice(i,1);
                             }
                             incompleteRows++;
@@ -586,8 +586,8 @@
                     }
                     document.querySelector("#input-data").value = newDisplayData;
                     outputLog(initialDataLength + " input rows.");
-                    outputLog(incompleteRows + " missing values found.");
-                    outputLog(garbageRows + " invalid rows found (e.g. header?).");
+                    outputLog(incompleteRows + " rows with missing values found.");
+                    outputLog(garbageRows + " invalid rows found.");
                     if(removeMissing) outputLog(incompleteRows + " rows removed.");
                     outputLog(data.length + " rows used in calculation.");
                     return data;
@@ -623,28 +623,28 @@
                                 row[1] = parseInt(row[1]);
                                 row[2] = parseInt(row[2]);
                                 if(row.length > 3) {
-                                    outputLog("Row removed (row too long): " + row);
+                                    outputLog("Row "+i+" removed (row too long): " + row);
                                     status.textContent = "Too many columns! (they should be [outcome, importance, satisfaction])"
                                     garbageRows++;
                                 } else if(row.length == 3 && Number.isInteger(row[1]) && Number.isInteger(row[2]) ) {
                                     newData.push({outcome: row[0], x: row[1], y: row[2]});
                                     newDisplayData += row[0] + "\t" + row[1] + "\t" + row[2] + "\n";
                                 } else if ( row.length == 3 && ( !Number.isInteger(row[1]) && !Number.isInteger(row[2]) ) ) {
-                                    outputLog("Row removed (non-numeric or missing values): " + row);
+                                    outputLog("Row "+i+" removed (non-numeric or missing values): " + row);
                                     garbageRows++;
                                 } else if ( row.length == 3 && ( !Number.isInteger(row[1]) || !Number.isInteger(row[2]) ) ) {
                                     if(removeMissing) { // Remove rows with missing values:
-                                        outputLog("Row removed (missing values): " + row);
+                                        outputLog("Row "+i+" removed (missing values): " + row);
                                     } else {
                                         if(isNaN(row[1])) row[1] = "";
                                         if(isNaN(row[2])) row[2] = "";
                                         newData.push({outcome: row[0], x: row[1], y: row[2]});
                                         newDisplayData += row[0] + "\t" + row[1] + "\t" + row[2] + "\n";
-                                        outputLog("Incomplete row kept: " + row);
+                                        outputLog("Incomplete row "+i+" kept: " + row);
                                     }
                                     incompleteRows++;
                                 } else {
-                                    outputLog("Row removed: " + row);
+                                    outputLog("Row "+i+" removed: " + row);
                                     garbageRows++;
                                 } 
                             }
@@ -652,7 +652,7 @@
                     }
                     outputLog(initialDataLength + " input rows.");
                     outputLog(incompleteRows + " missing values found.");
-                    outputLog(garbageRows + " invalid rows found (e.g. header?).");
+                    outputLog(garbageRows + " rows with invalid values found.");
                     if(removeMissing) console.log(incompleteRows + " rows removed.");
                     outputLog(newData.length + " rows used in calculation.");
                     document.querySelector("#input-data").value = newDisplayData;
