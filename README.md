@@ -7,3 +7,6 @@ Uses:
 - Save SVG as PNG: https://github.com/exupero/saveSvgAsPng
 - CSV parser: https://github.com/d3/d3-dsv
 
+### TODO
+- Support for multiple scales
+- Support for outcome categories
