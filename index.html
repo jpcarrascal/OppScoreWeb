@@ -305,6 +305,12 @@
                         .attr("transform",
                                 "translate(" + margin.left + "," + margin.top + ")");
 
+                    SVG.append("rect")
+                        .attr("width", "100%")
+                        .attr("height", "100%")
+                        .attr("fill", "white")
+                        .attr("transform",
+                                "translate(-" + margin.left + ",-" + margin.top + ")");
                     
                     // X scale and Axis
                     var x = d3.scaleLinear()
