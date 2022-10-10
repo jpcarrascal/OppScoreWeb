@@ -356,6 +356,22 @@
                         .attr("x2", x(10))
                         .attr("y2", y(10))
                         .style("stroke", "lightgrey");
+
+                    SVG.append("line")
+                        .attr("x1", x(6))
+                        .attr("y1", y(0))
+                        .attr("x2", x(10))
+                        .attr("y2", y(8))
+                        .style("stroke-dasharray", ("3, 3"))
+                        .style("stroke", "lightgrey");
+
+                    SVG.append("line")
+                        .attr("x1", x(7.5))
+                        .attr("y1", y(0))
+                        .attr("x2", x(10))
+                        .attr("y2", y(5))
+                        .style("stroke-dasharray", ("3, 3"))
+                        .style("stroke", "lightgrey");
                     
                     SVG.append("text")     
                         .attr("x", function (d) { return x(3); } )
@@ -363,7 +379,7 @@
                         .style("text-anchor", "middle")
                         .text("Overserved")
                         .attr("font-family", "sans-serif")
-                        .style("font-size", "13px")
+                        .style("font-size", "15px")
                         .style("fill", "lightgrey");
 
                     SVG.append("text")     
@@ -372,7 +388,7 @@
                         .style("text-anchor", "middle")
                         .text("Appropriately Served")
                         .attr("font-family", "sans-serif")
-                        .style("font-size", "13px")
+                        .style("font-size", "15px")
                         .style("fill", "lightgrey");
 
                     SVG.append("text")     
@@ -381,16 +397,44 @@
                         .style("text-anchor", "middle")
                         .text("Underserved")
                         .attr("font-family", "sans-serif")
+                        .style("font-size", "15px")
+                        .style("fill", "lightgrey");
+
+                    SVG.append("text")     
+                        .attr("x", function (d) { return x(6.5); } )
+                        .attr("y", function (d) { return y(1.25); } )
+                        .style("text-anchor", "middle")
+                        .text("OppScore > 10")
+                        .attr("font-family", "sans-serif")
                         .style("font-size", "13px")
                         .style("fill", "lightgrey");
+
+                    SVG.append("text")     
+                        .attr("x", function (d) { return x(7.5); } )
+                        .attr("y", function (d) { return y(.75); } )
+                        .style("text-anchor", "middle")
+                        .text("OppScore > 12")
+                        .attr("font-family", "sans-serif")
+                        .style("font-size", "13px")
+                        .style("fill", "lightgrey");
+
+                    SVG.append("text")     
+                        .attr("x", function (d) { return x(8.75); } )
+                        .attr("y", function (d) { return y(0.25); } )
+                        .style("text-anchor", "middle")
+                        .text("OppScore > 15")
+                        .attr("font-family", "sans-serif")
+                        .style("font-size", "13px")
+                        .style("fill", "lightgrey");
+
                     // Axis labels
                     SVG.append("text")     
-                        .attr("x", function (d) { return x(-5); } )
+                        .attr("x", function (d) { return x(-4.5); } )
                         .attr("y", function (d) { return y(10.6); } )
                         .style("text-anchor", "middle")
                         .text("Satisfaction")
                         .attr("font-family", "sans-serif")
-                        .style("font-size", "13px")
+                        .style("font-size", "15px")
                         .style("fill", "grey")
                         .attr("transform", function(d) {
                                 return "rotate(-90)" 
@@ -402,7 +446,7 @@
                         .style("text-anchor", "middle")
                         .text("Importance")
                         .attr("font-family", "sans-serif")
-                        .style("font-size", "13px")
+                        .style("font-size", "15px")
                         .style("fill", "grey");
 
                     // points:
