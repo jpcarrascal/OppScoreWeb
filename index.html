@@ -379,16 +379,16 @@
                         .style("text-anchor", "middle")
                         .text("Overserved")
                         .attr("font-family", "sans-serif")
-                        .style("font-size", "15px")
+                        .style("font-size", "17px")
                         .style("fill", "lightgrey");
 
                     SVG.append("text")     
-                        .attr("x", function (d) { return x(4); } )
+                        .attr("x", function (d) { return x(4.1); } )
                         .attr("y", function (d) { return y(2); } )
                         .style("text-anchor", "middle")
                         .text("Appropriately Served")
                         .attr("font-family", "sans-serif")
-                        .style("font-size", "15px")
+                        .style("font-size", "17px")
                         .style("fill", "lightgrey");
 
                     SVG.append("text")     
@@ -397,12 +397,13 @@
                         .style("text-anchor", "middle")
                         .text("Underserved")
                         .attr("font-family", "sans-serif")
-                        .style("font-size", "15px")
+                        .style("font-size", "17px")
                         .style("fill", "lightgrey");
-
+                    
+                    // Opportunity areas
                     SVG.append("text")     
-                        .attr("x", function (d) { return x(6.5); } )
-                        .attr("y", function (d) { return y(1.25); } )
+                        .attr("x", function (d) { return x(8.7); } )
+                        .attr("y", function (d) { return y(6.25); } )
                         .style("text-anchor", "middle")
                         .text("OppScore > 10")
                         .attr("font-family", "sans-serif")
@@ -410,8 +411,17 @@
                         .style("fill", "lightgrey");
 
                     SVG.append("text")     
-                        .attr("x", function (d) { return x(7.5); } )
-                        .attr("y", function (d) { return y(.75); } )
+                        .attr("x", function (d) { return x(8.7); } )
+                        .attr("y", function (d) { return y(5.95); } )
+                        .style("text-anchor", "middle")
+                        .text("Solid opportunity")
+                        .attr("font-family", "sans-serif")
+                        .style("font-size", "11px")
+                        .style("fill", "lightgrey");
+
+                    SVG.append("text")     
+                        .attr("x", function (d) { return x(8.8); } )
+                        .attr("y", function (d) { return y(3.75); } )
                         .style("text-anchor", "middle")
                         .text("OppScore > 12")
                         .attr("font-family", "sans-serif")
@@ -419,12 +429,30 @@
                         .style("fill", "lightgrey");
 
                     SVG.append("text")     
-                        .attr("x", function (d) { return x(8.75); } )
-                        .attr("y", function (d) { return y(0.25); } )
+                        .attr("x", function (d) { return x(8.8); } )
+                        .attr("y", function (d) { return y(3.45); } )
+                        .style("text-anchor", "middle")
+                        .text("Hight opportunity")
+                        .attr("font-family", "sans-serif")
+                        .style("font-size", "11px")
+                        .style("fill", "lightgrey");
+
+                    SVG.append("text")     
+                        .attr("x", function (d) { return x(8.9); } )
+                        .attr("y", function (d) { return y(0.5); } )
                         .style("text-anchor", "middle")
                         .text("OppScore > 15")
                         .attr("font-family", "sans-serif")
                         .style("font-size", "13px")
+                        .style("fill", "lightgrey");
+
+                    SVG.append("text")     
+                        .attr("x", function (d) { return x(8.9); } )
+                        .attr("y", function (d) { return y(0.2); } )
+                        .style("text-anchor", "middle")
+                        .text("Extreme opportunity")
+                        .attr("font-family", "sans-serif")
+                        .style("font-size", "11px")
                         .style("fill", "lightgrey");
 
                     // Axis labels
