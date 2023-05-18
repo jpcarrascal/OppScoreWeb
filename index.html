@@ -830,11 +830,11 @@
                         for(o=0; o<uniqueOutcomes.length; o++) {
                             var currentOutcome = uniqueOutcomes[o];
                             for(var j=0; j<numCols; j++) {
-                                if(outcomes[j] ==currentOutcome) {
+                                if(outcomes[j] == currentOutcome) {
                                     dp.outcome = outcomes[j];
-                                    if(impsats[j] == "importance")
+                                    if(impsats[j].toLowerCase() == "importance")
                                         dp.importance = scores[j];
-                                    else
+                                    if(impsats[j].toLowerCase() == "satisfaction")
                                         dp.satisfaction = scores[j];
                                 }
                             }
