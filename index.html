@@ -226,15 +226,15 @@
                     <div id="input-container">
                         <!-- Tab Navigation -->
                         <div class="tab-nav">
-                            <div class="tab-button active" data-tab="survey-tab">Input: Survey data (row per response)</div>
-                            <div class="tab-button" data-tab="datapoint-tab">Input: Row per datapoint</div>
+                            <div class="tab-button" data-tab="survey-tab">Input: Survey data (row per response)</div>
+                            <div class="tab-button active" data-tab="datapoint-tab">Input: Row per datapoint</div>
                         </div>
                         
                         <!-- Survey data tab -->
-                        <div class="input-style-page active" id="survey-tab">
+                        <div class="input-style-page" id="survey-tab">
                             Use this tab if your data comes from a survey tool. Each row should be a response from a unique participant.
                             <ul>
-                                <li>Sample data included for you to play around with. CLick "Clear data" to impoprt yours.</li>
+                                <li>Sample data included for you to play around with. Click "Clear data" to import yours.</li>
                                 <li>Paste your <span class="emph">tab-separated</span> data below.</li>
                                 <li>Columns contain <b>importance</b> and <b>satisfaction</b> for each outcome. This means that each outcome appears in <i>two</i> columns.</li>
                                 <li>Qualtrics and Survey Monkey exports should be almost ready to go. just make sure you add 'importance' and 'satisfaction' labels to each column (first row of your data).</li>
@@ -244,12 +244,12 @@
                         </div>
                         
                         <!-- Row per datapoint tab -->
-                        <div class="input-style-page" id="datapoint-tab">
+                        <div class="input-style-page active" id="datapoint-tab">
                             Use this tab if your data is already in the format of <span class="important">one row per outcome</span>. This means that each unique participant probably has multiple rows.
                             <ul>
-                                <li>Sample data included for you to play around with. CLick "Clear data" to impoprt yours.</li>
+                                <li>Sample data included for you to play around with. Click "Clear data" to import yours.</li>
                                 <li>Paste <span class="emph">tab-separated</span> data formatted in <span class="important">3 columns <b>[outcome, importance, satisfaction]</b></span>
-                                    <br/>or<br/> import a CSV file that includes the same 3 columns.
+                                    <!-- <br/>or<br/> import a CSV file that includes the same 3 columns. -->
                                 </li>
                                 <li><b>importance</b> and <b>satisfaction</b> should be in a 1-5 scale (1=low importance/5=high importance; 1=low satisfaction/5=high satisfaction).</li>
                             </ul>
@@ -263,7 +263,7 @@
                             </table>
                             <textarea id="input-data" placeholder="Paste tab or comma-separated data here"></textarea>
                             <br/>
-                            <input type="file" id="file-selector" accept=".csv" single />
+                            <!-- <input type="file" id="file-selector" accept=".csv" single /> -->
                             
                         </div>
                     </div>
@@ -597,7 +597,7 @@
                 }
 
                 d3.select("#clear").on('click', function(e){
-                    document.querySelector("#file-selector").value = null;
+                    if (document.querySelector("#file-selector")) document.querySelector("#file-selector").value = null;
                     clearData();
                 });
 
@@ -619,28 +619,32 @@
                 // Read CSV file (borrowed from https://web.dev/read-files/)
                 const status = document.getElementById('status');
                 if (window.FileList && window.File && window.FileReader) {
-                    document.getElementById('file-selector').addEventListener('change', event => {
-                        clearData();
-                        status.textContent = '';
-                        const file = event.target.files[0];
-                        if (!file.type) {
-                            status.textContent = 'Error: The File.type property does not appear to be supported on this browser.';
-                            return;
-                        }
-                        /*
-                        if (!file.type.match('text/csv')) {
-                            status.textContent = 'Error: The selected file does not appear to be a CSV file.'
-                            return;
-                        }
-                        */
-                        const reader = new FileReader();
-                        reader.addEventListener('load', event => {
-                            const data = d3.csvParse( event.target.result.replace(/\t/g,",") );
-                            parseFileData(data);
-                            //parsePastedData(event.target.result);
-                        });
-                        reader.readAsText(file,"UTF-8");
-                    }); 
+                    try {
+                        document.getElementById('file-selector').addEventListener('change', event => {
+                            clearData();
+                            status.textContent = '';
+                            const file = event.target.files[0];
+                            if (!file.type) {
+                                status.textContent = 'Error: The File.type property does not appear to be supported on this browser.';
+                                return;
+                            }
+                            /*
+                            if (!file.type.match('text/csv')) {
+                                status.textContent = 'Error: The selected file does not appear to be a CSV file.'
+                                return;
+                            }
+                            */
+                            const reader = new FileReader();
+                            reader.addEventListener('load', event => {
+                                const data = d3.csvParse( event.target.result.replace(/\t/g,",") );
+                                parseFileData(data);
+                                //parsePastedData(event.target.result);
+                            });
+                            reader.readAsText(file,"UTF-8");
+                        }); 
+                    } catch (e) {
+                        console.log("File import button not found.");
+                    }
                 }
 
                 function parseFileData(data) {
@@ -649,7 +653,8 @@
                     var newDisplayData = "";
                     var incompleteRows = 0;
                     var garbageRows = 0;
-                    const cols = data.columns;
+                    var cols = data.columns;
+                    cols = cols.map(c => c.toLowerCase());
                     if(! (cols.includes("outcome") && cols.includes("importance") && cols.includes("satisfaction")) ) {
                         status.textContent = "Some columns not found! (they should be [outcome, importance, satisfaction])";
                         return;
@@ -662,8 +667,7 @@
                             incompleteRows++;
                             outputLog("Malformed row "+i+" removed: " + data[i]);
                             data.splice(i,1);
-                        }
-                        else if( !Number.isInteger(data[i].importance) || !Number.isInteger(data[i].satisfaction) ) {
+                        } else if( !Number.isInteger(data[i].importance) || !Number.isInteger(data[i].satisfaction) ) {
                             if(removeMissing) {
                                 outputLog("Incomplete row "+i+" removed: " + data[i]);
                                 data.splice(i,1);
@@ -709,6 +713,7 @@
                     var newDisplayData = "";
                     var incompleteRows = 0;
                     var garbageRows = 0;
+                    inputdata = inputdata.replace(/,/g,"\t"); // Replace commas with tabs
                     if(inputdata != "") {
                         var lines = inputdata.split(/\n/);
                         var initialDataLength = 0;
