@@ -9,6 +9,7 @@ Uses:
 
 # Latest updtes:
 - 27/06/2026: Swiched to tabbed input, survey style input as default
+  - Known issue: File upload is (temporalily) removed. Use Copy+paste
 
 ### TODO
 - Support for multiple scales
