@@ -234,11 +234,11 @@
                         <div class="input-style-page active" id="survey-tab">
                             Use this tab if your data comes from a survey tool. Each row should be a response from a unique participant.
                             <ul>
+                                <li>Sample data included for you to play around with. CLick "Clear data" to impoprt yours.</li>
                                 <li>Paste your <span class="emph">tab-separated</span> data below.</li>
                                 <li>Columns contain <b>importance</b> and <b>satisfaction</b> for each outcome. This means that each outcome appears in <i>two</i> columns.</li>
                                 <li>Qualtrics and Survey Monkey exports should be almost ready to go. just make sure you add 'importance' and 'satisfaction' labels to each column (first row of your data).</li>
                                 <li><b>importance</b> and <b>satisfaction</b> should be in a 1-5 scale (1=low importance/5=high importance; 1=low satisfaction/5=high satisfaction).</li>
-                                <li>Sample data included for you to play around with.</li>
                             </ul>
                             <textarea id="alt-data" rows="20" cols="70" wrap="off"></textarea>
                         </div>
@@ -247,6 +247,7 @@
                         <div class="input-style-page" id="datapoint-tab">
                             Use this tab if your data is already in the format of <span class="important">one row per outcome</span>. This means that each unique participant probably has multiple rows.
                             <ul>
+                                <li>Sample data included for you to play around with. CLick "Clear data" to impoprt yours.</li>
                                 <li>Paste <span class="emph">tab-separated</span> data formatted in <span class="important">3 columns <b>[outcome, importance, satisfaction]</b></span>
                                     <br/>or<br/> import a CSV file that includes the same 3 columns.
                                 </li>
@@ -458,7 +459,7 @@
                         .attr("x", function (d) { return x(8.8); } )
                         .attr("y", function (d) { return y(3.45); } )
                         .style("text-anchor", "middle")
-                        .text("Hight opportunity")
+                        .text("High opportunity")
                         .attr("font-family", "sans-serif")
                         .style("font-size", "11px")
                         .style("fill", "lightgrey");
