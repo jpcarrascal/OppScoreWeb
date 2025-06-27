@@ -62,7 +62,7 @@
             #input-container {
                 margin: 0;
             }
-            #input-data {
+            textarea#input-data {
                 margin: 0;
                 border: 1px solid darkgray;
                 padding: 0;
@@ -126,35 +126,9 @@
                 color: red;
             }
 
-            #alt-open {
-                color:#5599EE;
-                font-weight: bold;
-                cursor: pointer;
-            }
-
-            #alt-open:hover {
-                text-decoration: underline;
-            }
-
-            #alt-open:active {
-                color: black;
-            }
-
-            #alt-modal {
-                display: none;
-                flex-direction: column;
-                align-items: center;
-                justify-content: flex-start;
-                position: absolute;
-                width: 700px;
-                padding: 30px;
-                background-color: #DDD;
-                top: 50px;
-                box-shadow: rgba(0,0,0,0.3) 15px 15px;
-            }
-
-            #alt-data {
+            textarea#alt-data {
                 width: 80%;
+                height: 100px;
                 resize: none;
                 margin: 20px;
                 overflow: scroll;
@@ -186,73 +160,124 @@
                 border: 1px solid darkgray;
             }
 
+            /* Tab Navigation Styles */
+            .tab-container {
+                margin-top: 20px;
+            }
+            
+            .tab-nav {
+                display: flex;
+                border-bottom: 2px solid #ddd;
+                margin-bottom: 0;
+            }
+            
+            .tab-button {
+                background-color: #f8f9fa;
+                border: 1px solid #ddd;
+                border-bottom: none;
+                padding: 12px 20px;
+                cursor: pointer;
+                font-size: 14px;
+                font-weight: bold;
+                color: #333;
+                margin-right: 2px;
+                transition: background-color 0.3s;
+                border-radius: 5px 5px 0 0;
+            }
+            
+            .tab-button:hover {
+                background-color: #e9ecef;
+            }
+            
+            .tab-button.active {
+                background-color: white;
+                color: #5599EE;
+                border-bottom: 2px solid white;
+                margin-bottom: -2px;
+            }
+            
+            .input-style-page {
+                display: none;
+                padding: 20px;
+                border: 1px solid #ddd;
+                border-top: none;
+                background-color: white;
+            }
+            
+            .input-style-page.active {
+                display: block;
+            }
+
         </style>
     </head>
     <body>
-        <div id="alt-modal">
-            <div id="alt-close">✕</div>
-            <div>
-                <h3>Are your data coming from a survey tool?</h3>
-                <ul>
-                    <li>Paste your <span class="emph">tab-separated</span> data below.</li>
-                    <li>Each row should be a response</li>
-                    <li>Columns contain <b>importance</b> and <b>satisfaction</b> for each outcome.</li>
-                    This means that each outcome appears in <i>two</i> columns.
-
-                </ul>
-                <br />
-                Qualtrics and Survey Monkey exports should be almost ready to go.
-                just make sure you add 'importance' and 'satisfaction' to each column (first row of your data).
-                <br />
-                (Sample data included for you to play around with)
-            </div>
-            <textarea id="alt-data" rows="20" cols="70" wrap="off"></textarea>
-            <div class="input-buttons">
-                <button id="alt-clear">Clear data</button>
-                <button id="alt-reformat">Reformat data</button>
-            </div>
-            <div id="alt-message">&nbsp;</div>
-        </div>
         <div id="wrapper">
             <h2>Opportunity Score and Map Generator (beta)</h2>
-            <h3>Input data</h3>
-            <ul>
-                <li>Import a CSV file that includes <span class="important">these 3 columns <b>[outcome, importance, satisfaction]</b></span>,<br/>or</li>
-                <li>paste <span class="emph">tab-separated</span> data formatted in <span class="important">3 columns <b>[outcome, importance, satisfaction]</b></span></li>
-                <li><b>importance</b> and <b>satisfaction</b> should be in a 1-5 scale (1=low importance/5=high importance; 1=low satisfaction/5=high satisfaction).</b></span></li>
-                <li>If your data is in a different format (e.g. output from a survey tool), <span id="alt-open">click here</span> for more options.</li>
-            </ul>
+
+                <i>
+                    For more information about the Opportunity Score and Map, check <a href="https://medium.com/uxr-microsoft/what-is-the-opportunity-score-and-how-to-obtain-it-bb81fcbf79b7" target="_blank">this blog post</a>.
+                    <br/>
+                    This is an open-source tool, currently in beta. Please file issues or bugs in the <a href="https://github.com/jpcarrascal/OppScoreWeb" target="_blank">GitHub repo</a>,
+                </i>
+
             <div id="container">
                 <div id="controls">
-                    <input type="file" id="file-selector" accept=".csv" single />
-                    <p id="status"> </p>
+
                     <div id="input-container">
-                        <table id="input-table">
-                            <tr>
-                                <th>outcome</th>
-                                <th>importance</th>
-                                <th>satisfaction</th>
-                            </tr>
-                        </table>
-    
-                        <textarea id="input-data" placeholder="Paste tab or comma-separated data here"></textarea>
+                        <!-- Tab Navigation -->
+                        <div class="tab-nav">
+                            <div class="tab-button active" data-tab="survey-tab">Input: Survey data (row per response)</div>
+                            <div class="tab-button" data-tab="datapoint-tab">Input: Row per datapoint</div>
+                        </div>
+                        
+                        <!-- Survey data tab -->
+                        <div class="input-style-page active" id="survey-tab">
+                            Use this tab if your data comes from a survey tool. Each row should be a response from a unique participant.
+                            <ul>
+                                <li>Paste your <span class="emph">tab-separated</span> data below.</li>
+                                <li>Columns contain <b>importance</b> and <b>satisfaction</b> for each outcome. This means that each outcome appears in <i>two</i> columns.</li>
+                                <li>Qualtrics and Survey Monkey exports should be almost ready to go. just make sure you add 'importance' and 'satisfaction' labels to each column (first row of your data).</li>
+                                <li><b>importance</b> and <b>satisfaction</b> should be in a 1-5 scale (1=low importance/5=high importance; 1=low satisfaction/5=high satisfaction).</li>
+                                <li>Sample data included for you to play around with.</li>
+                            </ul>
+                            <textarea id="alt-data" rows="20" cols="70" wrap="off"></textarea>
+                        </div>
+                        
+                        <!-- Row per datapoint tab -->
+                        <div class="input-style-page" id="datapoint-tab">
+                            Use this tab if your data is already in the format of <span class="important">one row per outcome</span>. This means that each unique participant probably has multiple rows.
+                            <ul>
+                                <li>Paste <span class="emph">tab-separated</span> data formatted in <span class="important">3 columns <b>[outcome, importance, satisfaction]</b></span>
+                                    <br/>or<br/> import a CSV file that includes the same 3 columns.
+                                </li>
+                                <li><b>importance</b> and <b>satisfaction</b> should be in a 1-5 scale (1=low importance/5=high importance; 1=low satisfaction/5=high satisfaction).</li>
+                            </ul>
+
+                            <table id="input-table">
+                                <tr>
+                                    <th>outcome</th>
+                                    <th>importance</th>
+                                    <th>satisfaction</th>
+                                </tr>
+                            </table>
+                            <textarea id="input-data" placeholder="Paste tab or comma-separated data here"></textarea>
+                            <br/>
+                            <input type="file" id="file-selector" accept=".csv" single />
+                            
+                        </div>
                     </div>
+
+                    <p id="status"> </p>
                     <div class="input-buttons">
                         <button class="map-data">Map data</button>
                         <button id="clear">Clear data</button>
                     </div>
+
                 </div>
-                <div id="additional-info">
-                    <br />
-                    <br />
-                    <br />
-                    &larr; Sample data has been included for you to play around with. Click [Clear data] to enter your own data.<br /><br />
-                    For more information about the Opportunity Score and Map, check <a href="https://medium.com/uxr-microsoft/what-is-the-opportunity-score-and-how-to-obtain-it-bb81fcbf79b7" target="_blank">this blog post</a>.
-                    <br />
-                    <br />
-                    This an open-source tool, currently in beta. Please file issues or bugs in the <a href="https://github.com/jpcarrascal/OppScoreWeb" target="_blank">GitHub repo</a>,
-                </div>
+
             </div>
+
+            
             <div id="output-container">
 
                 <div>
@@ -286,6 +311,7 @@
         <script>
             window.onload = function() {
                 var removeMissing = true;
+                var verboseLog = false;
                 if (window.location.search.substr("keepMissing")) {
                     console.log("Rows with missing values will not be removed")
                     removeMissing = false;
@@ -509,21 +535,38 @@
                 var inputElement = document.querySelector("#input-data");
                 readSampleData(sampleDataURL, document.querySelector("#input-data"));
 
+                var surveyData = "https://raw.githubusercontent.com/jpcarrascal/OppScoreWeb/main/sampleSurveyData.csv";
+                fetch(surveyData)
+                    .then(response => response.text())
+                    .then(data => document.querySelector("#alt-data").value = data);
+
+
                 d3.select(".map-data").on('click', function(e){
-                    //d3.selectAll("SVG > *").remove();
-                    //document.querySelector("#input-data").value = "";
+                    clearLog();
                     d3.select("#table-body").remove();
                     var inputdata = inputElement.value;
+                    if(document.getElementById("survey-tab").classList.contains("active")) {
+                        var surveyData = document.querySelector("#alt-data").value;
+                        try {
+                            inputdata = reformatData(surveyData);
+                            document.querySelector("#status").style.color = "forestgreen";
+                            document.querySelector("#status").innerText = "Reformat sucessful! Transformed data is included below";
+                        } catch(error) {
+                            document.querySelector("#status").innerText = error;
+                        }
+                    }
+
                     var newData = parsePastedData(inputdata);
+
                     if (newData.length > 0) {
                         document.querySelectorAll(".hidden-button").forEach( elem => { elem.style.visibility = "visible" });
                         status.textContent = "";
                         var oppScoreData = calculateOppScores(newData);
                         if (d3.select("svg")) d3.select("svg").remove();
                         asTable(oppScoreData);
-                        refresh(oppScoreData);   
+                        refresh(oppScoreData);
                     } else {
-                        status.textContent = "Data missing or wrong format. Columns should be [outcome, importance, satisfaction]";
+                        status.textContent = "Data missing or wrong format.";
                     }
                 });
 
@@ -545,6 +588,8 @@
                     d3.select("#table-body").remove();
                     document.querySelector("#input-data").value = "";
                     document.querySelector("#input-data").style.display = "block";
+                    document.querySelector("#alt-data").value = "";
+                    document.querySelector("#alt-data").style.display = "block";
                     document.querySelectorAll(".hidden-button").forEach( elem => { elem.style.visibility = "hidden" });
                     status.textContent = "";
                     refresh([]);
@@ -553,41 +598,6 @@
                 d3.select("#clear").on('click', function(e){
                     document.querySelector("#file-selector").value = null;
                     clearData();
-                });
-
-                d3.select("#alt-open").on('click', function(e){
-                    document.querySelector("#file-selector").value = null;
-                    clearData();
-                    document.querySelector("#alt-modal").style.display = "flex";
-                    var surveyData = "https://raw.githubusercontent.com/jpcarrascal/OppScoreWeb/main/sampleSurveyData.csv";
-                    fetch(surveyData)
-                        .then(response => response.text())
-                        .then(data => document.querySelector("#alt-data").value = data);
-                });
-
-                d3.select("#alt-close").on('click', function(e){
-                    document.querySelector("#alt-modal").style.display = "none";
-                });
-
-                d3.select("#alt-clear").on('click', function(e){
-                    document.querySelector("#alt-message").innerText = "";
-                    document.querySelector("#alt-data").value = "";
-                });
-
-                d3.select("#alt-reformat").on('click', function(e){
-                    var outElem = document.querySelector("#input-data");
-                    var inData = document.querySelector("#alt-data").value;
-                    try {
-                        outElem.value = reformatData(inData);
-                        setTimeout(function(){
-                            document.querySelector("#alt-modal").style.display = "none";
-                        }, 1
-                        );
-                        document.querySelector("#status").style.color = "forestgreen";
-                        document.querySelector("#status").innerText = "Reformat sucessful! Transformed data is included below";
-                    } catch(error) {
-                        document.querySelector("#alt-message").innerText = error;
-                    }
                 });
 
 
@@ -672,10 +682,16 @@
                 }
 
                 function outputLog(line) {
-                    console.log(line);
-                    var log = document.getElementById("output-log");
-                    log.innerText += line;
-                    log.innerText += "\n";
+                    if(verboseLog) {
+                        console.log(line);
+                        var log = document.getElementById("output-log");
+                        log.innerText += line;
+                        log.innerText += "\n";
+                    }
+                }
+
+                function clearLog() {
+                    document.getElementById("output-log").innerText = "";
                 }
 
                 function objJoin(obj) {
@@ -687,6 +703,7 @@
                 }
 
                 function parsePastedData(inputdata) {
+                    verboseLog = false;
                     var newData = Array();
                     var newDisplayData = "";
                     var incompleteRows = 0;
@@ -727,13 +744,14 @@
                                 } 
                             }
                         }
+                        verboseLog = true;
                     }
                     outputLog(initialDataLength + " input rows.");
                     outputLog(incompleteRows + " missing values found.");
                     outputLog(garbageRows + " rows with invalid values found.");
                     if(removeMissing) console.log(incompleteRows + " rows removed.");
                     outputLog(newData.length + " rows used in calculation.");
-                    document.querySelector("#input-data").value = newDisplayData;
+                    //document.querySelector("#input-data").value = newDisplayData;
                     return newData;
                 }
 
@@ -902,6 +920,35 @@
                         range.select();
                     }
                 }
+
+
+                // Tab navigation:
+                    // Tab functionality
+                function initializeTabs() {
+                    const tabButtons = document.querySelectorAll('.tab-button');
+                    const tabPages = document.querySelectorAll('.input-style-page');
+                    
+                    tabButtons.forEach(button => {
+                        button.addEventListener('click', function() {
+                            const targetTab = this.getAttribute('data-tab');
+                            
+                            // Remove active class from all buttons and pages
+                            tabButtons.forEach(btn => btn.classList.remove('active'));
+                            tabPages.forEach(page => page.classList.remove('active'));
+                            
+                            // Add active class to clicked button and corresponding page
+                            this.classList.add('active');
+                            document.getElementById(targetTab).classList.add('active');
+                            
+                            // Clear any status messages when switching tabs
+                            document.getElementById('status').textContent = '';
+                        });
+                    });
+                }
+                
+                // Initialize tabs
+                initializeTabs();
+
 
             }
         </script>

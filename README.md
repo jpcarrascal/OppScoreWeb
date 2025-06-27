@@ -7,6 +7,9 @@ Uses:
 - Save SVG as PNG: https://github.com/exupero/saveSvgAsPng
 - CSV parser: https://github.com/d3/d3-dsv
 
+# Latest updtes:
+- 27/06/2026: Swiched to tabbed input, survey style input as default
+
 ### TODO
 - Support for multiple scales
 - Support for outcome categories
