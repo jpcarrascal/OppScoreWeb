@@ -1,3 +1,6 @@
+# NOTE: Categories is an experimental feature. Please file an issue if you run into problems when using it.
+
+
 # OppScoreWeb
 Web app to compute and map Opportunity Scores.
 Use it here: https://jpcarrascal.github.io/OppScoreWeb/

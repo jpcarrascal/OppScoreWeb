@@ -215,6 +215,8 @@
             <h2>Opportunity Score and Map Generator (beta)</h2>
 
                 <i>
+                    <b>Outcome Categories is an experimentall feature. Please <a href="https://github.com/jpcarrascal/OppScoreWeb" target="_blank">file an issue</a> or <a href="mailto:juanpcarrascal@gmail.com">contact me</a> if you run into problems when using it.</b>
+                    <br/>
                     For more information about the Opportunity Score and Map, check <a href="https://medium.com/uxr-microsoft/what-is-the-opportunity-score-and-how-to-obtain-it-bb81fcbf79b7" target="_blank">this blog post</a>.
                     <br/>
                     This is an open-source tool, currently in beta. Please file issues or bugs in the <a href="https://github.com/jpcarrascal/OppScoreWeb" target="_blank">GitHub repo</a>,
@@ -232,6 +234,11 @@
                         
                         <!-- Survey data tab -->
                         <div class="input-style-page" id="survey-tab">
+                            <div style="margin-bottom: 15px;">
+                                <label>
+                                    <input type="checkbox" id="survey-categories-checkbox"> My data has categories
+                                </label>
+                            </div>
                             Use this tab if your data comes from a survey tool. Each row should be a response from a unique participant.
                             <ul>
                                 <li>Sample data included for you to play around with. Click "Clear data" to import yours.</li>
@@ -245,17 +252,21 @@
                         
                         <!-- Row per datapoint tab -->
                         <div class="input-style-page active" id="datapoint-tab">
+                            <div style="margin-bottom: 15px;">
+                                <label>
+                                    <input type="checkbox" id="datapoint-categories-checkbox"> My data has categories
+                                </label>
+                            </div>
                             Use this tab if your data is already in the format of <span class="important">one row per outcome</span>. This means that each unique participant probably has multiple rows.
                             <ul>
                                 <li>Sample data included for you to play around with. Click "Clear data" to import yours.</li>
-                                <li>Paste <span class="emph">tab-separated</span> data formatted in <span class="important">3 columns <b>[outcome, importance, satisfaction]</b></span>
-                                    <!-- <br/>or<br/> import a CSV file that includes the same 3 columns. -->
-                                </li>
+                                <li id="datapoint-description">Paste <span class="emph">tab-separated</span> data formatted in <span class="important">3 columns <b>[outcome, importance, satisfaction]</b></span></li>
                                 <li><b>importance</b> and <b>satisfaction</b> should be in a 1-5 scale (1=low importance/5=high importance; 1=low satisfaction/5=high satisfaction).</li>
                             </ul>
 
                             <table id="input-table">
                                 <tr>
+                                    <th id="category-header" style="display: none;">category</th>
                                     <th>outcome</th>
                                     <th>importance</th>
                                     <th>satisfaction</th>
@@ -287,6 +298,7 @@
                     <table id="oppscores-table">
                         <tr>
                             <th class="big-red">•</th>
+                            <th id="category-output-header" style="display: none;">Category</th>
                             <th>Outcome</th>
                             <th>Importance</th>
                             <th>Satisfaction</th>
@@ -313,6 +325,7 @@
             window.onload = function() {
                 var removeMissing = true;
                 var verboseLog = false;
+                var categoriesEnabled = false;
                 if (window.location.search.substr("keepMissing")) {
                     console.log("Rows with missing values will not be removed")
                     removeMissing = false;
@@ -505,6 +518,12 @@
                         .style("fill", "grey");
 
                     // points:
+                    // Get unique categories for color mapping
+                    var categories = [];
+                    if (categoriesEnabled && data.length > 0) {
+                        categories = [...new Set(data.map(item => item.category).filter(cat => cat))];
+                    }
+                    
                     var points = SVG
                         .selectAll("whatever")
                         .data(data)
@@ -512,7 +531,12 @@
                         .append("circle")
                         .attr("cx", function(d){ return x(d.x) })
                         .attr("cy", function(d){ return y(d.y) })
-                        .style("fill", "red")
+                        .style("fill", function(d) {
+                            if (categoriesEnabled && d.category) {
+                                return getCategoryColor(d.category, categories);
+                            }
+                            return "red";
+                        })
                         .attr("r", 5)
 
                     var labels = SVG
@@ -594,6 +618,11 @@
                     document.querySelectorAll(".hidden-button").forEach( elem => { elem.style.visibility = "hidden" });
                     status.textContent = "";
                     refresh([]);
+                    
+                    // Reset checkboxes and reload sample data
+                    document.getElementById('survey-categories-checkbox').checked = false;
+                    document.getElementById('datapoint-categories-checkbox').checked = false;
+                    updateCategoryState(false);
                 }
 
                 d3.select("#clear").on('click', function(e){
@@ -605,11 +634,22 @@
                 // Load sample data
                 function readSampleData(sourceURL, destination) {
                     var result = Array();
+                    // Clear the destination first
+                    destination.value = "";
+                    
                     d3.csv(sourceURL, function(data) {
                         for (var i = 0; i < data.length; i++) {
-                            result[i] = {outcome: data[i].outcome, x: data[i].importance, y: data[i].satisfaction}
-                            destination.value += (result[i].outcome + "\t"
-                                                        + result[i].x + "\t" + result[i].y + "\n");
+                            if (categoriesEnabled && data[i].category) {
+                                // Handle 4-column format with categories
+                                result[i] = {category: data[i].category, outcome: data[i].outcome, x: data[i].importance, y: data[i].satisfaction}
+                                destination.value += (result[i].category + "\t" + result[i].outcome + "\t"
+                                                            + result[i].x + "\t" + result[i].y + "\n");
+                            } else {
+                                // Handle 3-column format without categories
+                                result[i] = {outcome: data[i].outcome, x: data[i].importance, y: data[i].satisfaction}
+                                destination.value += (result[i].outcome + "\t"
+                                                            + result[i].x + "\t" + result[i].y + "\n");
+                            }
                         }
                         console.log("Read "+i+" rows from sample file");
                     });
@@ -713,6 +753,9 @@
                     var newDisplayData = "";
                     var incompleteRows = 0;
                     var garbageRows = 0;
+                    var expectedColumns = categoriesEnabled ? 4 : 3;
+                    var columnDescription = categoriesEnabled ? "[category, outcome, importance, satisfaction]" : "[outcome, importance, satisfaction]";
+                    
                     inputdata = inputdata.replace(/,/g,"\t"); // Replace commas with tabs
                     if(inputdata != "") {
                         var lines = inputdata.split(/\n/);
@@ -721,33 +764,70 @@
                             if(lines[i] != "") {
                                 initialDataLength++;
                                 var row = lines[i].split(separator);
-                                row[1] = parseInt(row[1]);
-                                row[2] = parseInt(row[2]);
-                                if(row.length > 3) {
+                                
+                                // Parse numeric values based on whether categories are enabled
+                                if (categoriesEnabled) {
+                                    row[2] = parseInt(row[2]); // importance
+                                    row[3] = parseInt(row[3]); // satisfaction
+                                } else {
+                                    row[1] = parseInt(row[1]); // importance
+                                    row[2] = parseInt(row[2]); // satisfaction
+                                }
+                                
+                                if(row.length > expectedColumns) {
                                     outputLog("Row "+i+" removed (row too long): " + row);
-                                    status.textContent = "Too many columns! (they should be [outcome, importance, satisfaction])"
+                                    status.textContent = "Too many columns! (they should be " + columnDescription + ")"
                                     garbageRows++;
-                                } else if(row.length == 3 && Number.isInteger(row[1]) && Number.isInteger(row[2]) ) {
-                                    newData.push({outcome: row[0], x: row[1], y: row[2]});
-                                    newDisplayData += row[0] + "\t" + row[1] + "\t" + row[2] + "\n";
-                                } else if ( row.length == 3 && ( !Number.isInteger(row[1]) && !Number.isInteger(row[2]) ) ) {
-                                    outputLog("Row "+i+" removed (non-numeric or missing values): " + row);
-                                    garbageRows++;
-                                } else if ( row.length == 3 && ( !Number.isInteger(row[1]) || !Number.isInteger(row[2]) ) ) {
-                                    if(removeMissing) { // Remove rows with missing values:
-                                        outputLog("Row "+i+" removed (missing values): " + row);
+                                } else if(row.length == expectedColumns) {
+                                    var isValid = false;
+                                    var dataObj = {};
+                                    
+                                    if (categoriesEnabled) {
+                                        if (Number.isInteger(row[2]) && Number.isInteger(row[3])) {
+                                            dataObj = {category: row[0], outcome: row[1], x: row[2], y: row[3]};
+                                            newDisplayData += row[0] + "\t" + row[1] + "\t" + row[2] + "\t" + row[3] + "\n";
+                                            isValid = true;
+                                        }
                                     } else {
-                                        if(isNaN(row[1])) row[1] = "";
-                                        if(isNaN(row[2])) row[2] = "";
-                                        newData.push({outcome: row[0], x: row[1], y: row[2]});
-                                        newDisplayData += row[0] + "\t" + row[1] + "\t" + row[2] + "\n";
-                                        outputLog("Incomplete row "+i+" kept: " + row);
+                                        if (Number.isInteger(row[1]) && Number.isInteger(row[2])) {
+                                            dataObj = {outcome: row[0], x: row[1], y: row[2]};
+                                            newDisplayData += row[0] + "\t" + row[1] + "\t" + row[2] + "\n";
+                                            isValid = true;
+                                        }
                                     }
-                                    incompleteRows++;
+                                    
+                                    if (isValid) {
+                                        newData.push(dataObj);
+                                    } else if (categoriesEnabled && (!Number.isInteger(row[2]) && !Number.isInteger(row[3]))) {
+                                        outputLog("Row "+i+" removed (non-numeric or missing values): " + row);
+                                        garbageRows++;
+                                    } else if (!categoriesEnabled && (!Number.isInteger(row[1]) && !Number.isInteger(row[2]))) {
+                                        outputLog("Row "+i+" removed (non-numeric or missing values): " + row);
+                                        garbageRows++;
+                                    } else {
+                                        // Handle missing values
+                                        if(removeMissing) {
+                                            outputLog("Row "+i+" removed (missing values): " + row);
+                                        } else {
+                                            if (categoriesEnabled) {
+                                                if(isNaN(row[2])) row[2] = "";
+                                                if(isNaN(row[3])) row[3] = "";
+                                                newData.push({category: row[0], outcome: row[1], x: row[2], y: row[3]});
+                                                newDisplayData += row[0] + "\t" + row[1] + "\t" + row[2] + "\t" + row[3] + "\n";
+                                            } else {
+                                                if(isNaN(row[1])) row[1] = "";
+                                                if(isNaN(row[2])) row[2] = "";
+                                                newData.push({outcome: row[0], x: row[1], y: row[2]});
+                                                newDisplayData += row[0] + "\t" + row[1] + "\t" + row[2] + "\n";
+                                            }
+                                            outputLog("Incomplete row "+i+" kept: " + row);
+                                        }
+                                        incompleteRows++;
+                                    }
                                 } else {
                                     outputLog("Row "+i+" removed: " + row);
                                     garbageRows++;
-                                } 
+                                }
                             }
                         }
                         verboseLog = true;
@@ -770,9 +850,14 @@
                     for(var i = 0; i<outcomes.length; i++) {
                         var thisOutcome = outcomes[i];
                         var sumImp = 0, sumSat = 0, countImp = 0, countSat = 0;
+                        var category = null;
+                        
                         for(var j = 0; j<data.length; j++) {
                             var d = data[j];
                             if( d.outcome == thisOutcome ) {
+                                if (categoriesEnabled && category === null) {
+                                    category = d.category;
+                                }
                                 if(d.x > 3)
                                     sumImp ++;
                                 countImp ++;
@@ -785,7 +870,12 @@
                         var meanSat = roundTwo(10 * (sumSat / countSat));
                         var oppScore = meanImp + (Math.max(meanImp-meanSat,0));
                         oppScore = Math.round((oppScore + Number.EPSILON) * 100) / 100;
-                        OppScores.push({ index: 0, outcome: thisOutcome, x: meanImp, y: meanSat, oppScore: oppScore});
+                        
+                        var scoreObj = { index: 0, outcome: thisOutcome, x: meanImp, y: meanSat, oppScore: oppScore };
+                        if (categoriesEnabled) {
+                            scoreObj.category = category;
+                        }
+                        OppScores.push(scoreObj);
                     }
 
                     OppScores.sort( compare );
@@ -800,19 +890,46 @@
                     var table = document.querySelector("#oppscores-table");
                     var tBody = document.createElement('tbody');
                     tBody.id = "table-body";
+                    
+                    // Get unique categories for color mapping
+                    var categories = [];
+                    if (categoriesEnabled) {
+                        categories = [...new Set(newData.map(item => item.category))];
+                    }
 
                     for(var i = 0; i<newData.length; i++) {
                         var row = tBody.insertRow();
+                        
+                        // Index column (with colored background if categories enabled)
                         var c0 = row.insertCell();
                         c0.innerHTML = newData[i].index;
+                        if (categoriesEnabled && newData[i].category) {
+                            c0.style.backgroundColor = getCategoryColor(newData[i].category, categories);
+                            c0.style.color = 'white';
+                            c0.style.fontWeight = 'bold';
+                        }
+                        
+                        // Category column (if enabled)
+                        if (categoriesEnabled) {
+                            var cCat = row.insertCell();
+                            cCat.innerHTML = newData[i].category || '';
+                        }
+                        
+                        // Outcome column
                         var c1 = row.insertCell();
                         c1.innerHTML = newData[i].outcome;
+                        
+                        // Importance column
                         var c2 = row.insertCell();
                         c2.innerHTML = newData[i].x;
                         c2.style.textAlign = "right";
+                        
+                        // Satisfaction column
                         var c3 = row.insertCell();
                         c3.innerHTML = newData[i].y;
                         c3.style.textAlign = "right";
+                        
+                        // Opportunity Score column
                         var c4 = row.insertCell();
                         c4.innerHTML = newData[i].oppScore;
                         c4.style.textAlign = "right";
@@ -823,47 +940,59 @@
                 var separator = "\t"; // separator = /[\t,\,]/;
                 function reformatData(input) {
                     var data = input.split("\n");
-                    if(!data[0].toLowerCase().includes("satisfaction") ||
-                        !data[0].toLowerCase().includes("importance")) {
-                        //alert("ERROR: Every column should be labeled as 'importance' or 'satisfaction'!!!");
+                    if(!data[1].toLowerCase().includes("satisfaction") ||
+                        !data[1].toLowerCase().includes("importance")) {
                         throw("ERROR: Every column should be labeled as 'importance' or 'satisfaction'!!!");
                     }
-                    var impsats = data[0].split(separator);
+                    
+                    var categories = categoriesEnabled ? data[0].split(separator) : null;
+                    var impsats = data[1].split(separator);
                     var numCols = impsats.length;
-                    var outcomes = data[1].split(separator);
+                    var outcomes = data[2].split(separator);
+                    
                     // Unique array elements, from: https://stackoverflow.com/questions/9229645/remove-duplicate-values-from-js-array
                     var uniqueOutcomes = outcomes.filter(function(item, pos, self) { return self.indexOf(item) == pos; });
                     var uniqueImpsat = impsats.filter(function(item, pos, self) { return self.indexOf(item) == pos; });
                     var numOutcomes = uniqueOutcomes.length;
-                    console.log(uniqueOutcomes)
+                    
                     if(numCols % 2)
                         throw("ERROR: There must be an even number of columns! (importance + satisfaction)");
                     if(impsats.length != outcomes.length)
-                    throw("ERROR: Looks like some columns are not correctly labeled...");
+                        throw("ERROR: Looks like some columns are not correctly labeled...");
                     if(numOutcomes != outcomes.length/2)
                         throw("ERROR: There is a problem in the names of your outcomes!!!");
                     if(uniqueImpsat.length != 2)
                         throw("ERROR: There is a problem with the importance/satisfaction labels!!!");
                     if(countInArray(impsats,"importance") != countInArray(impsats,"satisfaction"))
                         throw("ERROR: importance and satisfaction counts do not match!!!");
+                        
                     var outputArray = new Array();
-                    for(var i=2; i<data.length; i++) {
+                    for(var i=3; i<data.length; i++) {
                         var dp = new Object();
-                        //dp.p = "P"+(i-1);
                         var scores = data[i].split(separator);
                         for(o=0; o<uniqueOutcomes.length; o++) {
                             var currentOutcome = uniqueOutcomes[o];
+                            var currentCategory = null;
+                            
                             for(var j=0; j<numCols; j++) {
                                 if(outcomes[j] == currentOutcome) {
                                     dp.outcome = outcomes[j];
+                                    if (categoriesEnabled && categories) {
+                                        currentCategory = categories[j];
+                                    }
                                     if(impsats[j].toLowerCase() == "importance")
                                         dp.importance = scores[j];
                                     if(impsats[j].toLowerCase() == "satisfaction")
                                         dp.satisfaction = scores[j];
                                 }
                             }
-                            //var row = [dp.p, dp.outcome, dp.importance, dp.satisfaction].join("\t");
-                            var row = [dp.outcome, dp.importance, dp.satisfaction].join("\t");
+                            
+                            var row;
+                            if (categoriesEnabled && currentCategory) {
+                                row = [currentCategory, dp.outcome, dp.importance, dp.satisfaction].join("\t");
+                            } else {
+                                row = [dp.outcome, dp.importance, dp.satisfaction].join("\t");
+                            }
                             outputArray.push(row);
                         }
                     }
@@ -954,6 +1083,88 @@
                 
                 // Initialize tabs
                 initializeTabs();
+
+                // Category support functionality
+                var categoryColors = [
+                    '#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', 
+                    '#8c564b', '#e377c2', '#7f7f7f', '#bcbd22', '#17becf'
+                ];
+                
+                function syncCheckboxes() {
+                    const surveyCheckbox = document.getElementById('survey-categories-checkbox');
+                    const datapointCheckbox = document.getElementById('datapoint-categories-checkbox');
+                    
+                    surveyCheckbox.addEventListener('change', function() {
+                        datapointCheckbox.checked = this.checked;
+                        updateCategoryState(this.checked);
+                    });
+                    
+                    datapointCheckbox.addEventListener('change', function() {
+                        surveyCheckbox.checked = this.checked;
+                        updateCategoryState(this.checked);
+                    });
+                }
+                
+                function updateCategoryState(enabled) {
+                    categoriesEnabled = enabled;
+                    
+                    // Show/hide category headers
+                    const categoryHeader = document.getElementById('category-header');
+                    const categoryOutputHeader = document.getElementById('category-output-header');
+                    
+                    if (enabled) {
+                        categoryHeader.style.display = 'table-cell';
+                        categoryOutputHeader.style.display = 'table-cell';
+                    } else {
+                        categoryHeader.style.display = 'none';
+                        categoryOutputHeader.style.display = 'none';
+                    }
+                    
+                    // Update column descriptions
+                    updateColumnDescriptions(enabled);
+                    
+                    // Load appropriate sample data
+                    loadSampleData(enabled);
+                }
+                
+                function updateColumnDescriptions(enabled) {
+                    const datapointDescription = document.getElementById('datapoint-description');
+                    if (enabled) {
+                        datapointDescription.innerHTML = 'Paste <span class="emph">tab-separated</span> data formatted in <span class="important">4 columns <b>[category, outcome, importance, satisfaction]</b></span>';
+                    } else {
+                        datapointDescription.innerHTML = 'Paste <span class="emph">tab-separated</span> data formatted in <span class="important">3 columns <b>[outcome, importance, satisfaction]</b></span>';
+                    }
+                }
+                
+                function loadSampleData(withCategories) {
+                    // Clear existing data first
+                    document.querySelector("#input-data").value = "";
+                    document.querySelector("#alt-data").value = "";
+                    
+                    if (withCategories) {
+                        // Load sample data with categories
+                        var sampleDataURL = "https://raw.githubusercontent.com/jpcarrascal/OppScoreWeb/main/sampledata+categories.csv";
+                        var surveyDataURL = "https://raw.githubusercontent.com/jpcarrascal/OppScoreWeb/main/sampleSurveyData+categories.csv";
+                    } else {
+                        // Load original sample data
+                        var sampleDataURL = "https://raw.githubusercontent.com/jpcarrascal/OppScoreWeb/main/sampledata.csv";
+                        var surveyDataURL = "https://raw.githubusercontent.com/jpcarrascal/OppScoreWeb/main/sampleSurveyData.csv";
+                    }
+                    
+                    readSampleData(sampleDataURL, document.querySelector("#input-data"));
+                    
+                    fetch(surveyDataURL)
+                        .then(response => response.text())
+                        .then(data => document.querySelector("#alt-data").value = data);
+                }
+                
+                function getCategoryColor(category, categoryList) {
+                    var index = categoryList.indexOf(category);
+                    return categoryColors[index % categoryColors.length];
+                }
+                
+                // Initialize category functionality
+                syncCheckboxes();
 
 
             }
