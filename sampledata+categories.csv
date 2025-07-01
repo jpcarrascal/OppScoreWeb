@@ -1,0 +1,228 @@
+id,outcome,importance,satisfaction
+P01,Complete academic duties,Writing papers,3,4
+P02,Complete academic duties,Writing papers,5,5
+P03,Complete academic duties,Writing papers,5,5
+P04,Complete academic duties,Writing papers,3,4
+P05,Complete academic duties,Writing papers,4,3
+P06,Complete academic duties,Writing papers,5,5
+P07,Complete academic duties,Writing papers,5,4
+P08,Complete academic duties,Writing papers,4,5
+P09,Complete academic duties,Writing papers,5,5
+P10,Complete academic duties,Writing papers,5,5
+P11,Complete academic duties,Writing papers,2,4
+P12,Complete academic duties,Writing papers,5,4
+P13,Complete academic duties,Writing papers,3,3
+P14,Complete academic duties,Writing papers,3,3
+P15,Complete academic duties,Writing papers,5,5
+P16,Complete academic duties,Writing papers,5,4
+P17,Complete academic duties,Writing papers,4,1
+P18,Complete academic duties,Writing papers,5,4
+P19,Complete academic duties,Writing papers,2,2
+P20,Complete academic duties,Writing papers,5,5
+P21,Complete academic duties,Writing papers,3,5
+P01,Complete academic duties,Supervising undergrad students,2,3
+P02,Complete academic duties,Supervising undergrad students,2,3
+P03,Complete academic duties,Supervising undergrad students,1,1
+P04,Complete academic duties,Supervising undergrad students,5,5
+P05,Complete academic duties,Supervising undergrad students,4,5
+P06,Complete academic duties,Supervising undergrad students,2,3
+P01,Complete academic duties,Passing exams,5,1
+P02,Complete academic duties,Passing exams,4,2
+P03,Complete academic duties,Passing exams,3,2
+P04,Complete academic duties,Passing exams,5,3
+P05,Complete academic duties,Passing exams,4,2
+P06,Complete academic duties,Passing exams,5,3
+P07,Complete academic duties,Passing exams,4,4
+P01,Complete academic duties,Getting submitted paper accepted,4,4
+P02,Complete academic duties,Getting submitted paper accepted,5,5
+P03,Complete academic duties,Getting submitted paper accepted,4,5
+P04,Complete academic duties,Getting submitted paper accepted,3,4
+P05,Complete academic duties,Getting submitted paper accepted,5,5
+P06,Complete academic duties,Getting submitted paper accepted,5,4
+P07,Complete academic duties,Getting submitted paper accepted,3,3
+P08,Complete academic duties,Getting submitted paper accepted,5,5
+P09,Complete academic duties,Getting submitted paper accepted,5,5
+P10,Complete academic duties,Getting submitted paper accepted,5,4
+P11,Complete academic duties,Getting submitted paper accepted,4,3
+P12,Complete academic duties,Getting submitted paper accepted,5,5
+P13,Complete academic duties,Getting submitted paper accepted,1,2
+P14,Complete academic duties,Getting submitted paper accepted,1,4
+P15,Complete academic duties,Getting submitted paper accepted,4,5
+P16,Complete academic duties,Getting submitted paper accepted,5,3
+P17,Complete academic duties,Getting submitted paper accepted,3,5
+P18,Complete academic duties,Getting submitted paper accepted,5,5
+P19,Complete academic duties,Getting submitted paper accepted,5,4
+P20,Complete academic duties,Getting submitted paper accepted,4,5
+P21,Complete academic duties,Getting submitted paper accepted,3,5
+P22,Complete academic duties,Getting submitted paper accepted,5,2
+P23,Complete academic duties,Getting submitted paper accepted,5,4
+P24,Complete academic duties,Getting submitted paper accepted,4,3
+P25,Complete academic duties,Getting submitted paper accepted,5,5
+P26,Complete academic duties,Getting submitted paper accepted,4,5
+P01,Complete academic duties,Completing homework,5,4
+P02,Complete academic duties,Completing homework,5,5
+P03,Complete academic duties,Completing homework,5,5
+P04,Complete academic duties,Completing homework,4,4
+P05,Complete academic duties,Completing homework,5,5
+P06,Complete academic duties,Completing homework,5,5
+P07,Complete academic duties,Completing homework,5,5
+P08,Complete academic duties,Completing homework,4,4
+P09,Complete academic duties,Completing homework,4,5
+P10,Complete academic duties,Completing homework,5,4
+P11,Complete academic duties,Completing homework,5,5
+P12,Complete academic duties,Completing homework,5,5
+P13,Complete academic duties,Completing homework,4,4
+P14,Complete academic duties,Completing homework,5,4
+P15,Complete academic duties,Completing homework,5,5
+P16,Complete academic duties,Completing homework,5,5
+P17,Complete academic duties,Completing homework,5,4
+P18,Complete academic duties,Completing homework,5,5
+P19,Complete academic duties,Completing homework,5,4
+P20,Complete academic duties,Completing homework,5,5
+P21,Complete academic duties,Completing homework,5,3
+P22,Complete academic duties,Completing homework,5,5
+P23,Complete academic duties,Completing homework,5,5
+P24,Complete academic duties,Completing homework,5,4
+P25,Complete academic duties,Completing homework,5,5
+P26,Complete academic duties,Completing homework,5,5
+P27,Complete academic duties,Completing homework,5,4
+P28,Complete academic duties,Completing homework,5,5
+P29,Complete academic duties,Completing homework,3,5
+P30,Complete academic duties,Completing homework,5,5
+P31,Complete academic duties,Completing homework,4,4
+P01,Daily activities,Finding cheap food,2,3
+P02,Daily activities,Finding cheap food,4,3
+P03,Daily activities,Finding cheap food,5,4
+P04,Daily activities,Finding cheap food,5,4
+P05,Daily activities,Finding cheap food,4,3
+P06,Daily activities,Finding cheap food,4,3
+P07,Daily activities,Finding cheap food,5,3
+P08,Daily activities,Finding cheap food,4,3
+P09,Daily activities,Finding cheap food,3,3
+P10,Daily activities,Finding cheap food,3,5
+P11,Daily activities,Finding cheap food,5,4
+P12,Daily activities,Finding cheap food,4,4
+P13,Daily activities,Finding cheap food,5,3
+P14,Daily activities,Finding cheap food,4,3
+P15,Daily activities,Finding cheap food,5,3
+P16,Daily activities,Finding cheap food,4,2
+P17,Daily activities,Finding cheap food,4,3
+P18,Daily activities,Finding cheap food,3,4
+P19,Daily activities,Finding cheap food,5,3
+P20,Daily activities,Finding cheap food,4,3
+P21,Daily activities,Finding cheap food,4,3
+P22,Daily activities,Finding cheap food,5,5
+P23,Daily activities,Finding cheap food,3,3
+P24,Daily activities,Finding cheap food,5,5
+P25,Daily activities,Finding cheap food,3,5
+P26,Daily activities,Finding cheap food,3,2
+P27,Daily activities,Finding cheap food,5,4
+P28,Daily activities,Finding cheap food,5,5
+P29,Daily activities,Finding cheap food,4,4
+P01,Daily activities,Getting out of bed,5,4
+P02,Daily activities,Getting out of bed,5,5
+P03,Daily activities,Getting out of bed,5,5
+P04,Daily activities,Getting out of bed,5,5
+P05,Daily activities,Getting out of bed,4,3
+P06,Daily activities,Getting out of bed,5,4
+P07,Daily activities,Getting out of bed,5,5
+P08,Daily activities,Getting out of bed,4,4
+P09,Daily activities,Getting out of bed,5,5
+P10,Daily activities,Getting out of bed,3,5
+P11,Daily activities,Getting out of bed,5,5
+P12,Daily activities,Getting out of bed,5,4
+P13,Daily activities,Getting out of bed,5,4
+P14,Daily activities,Getting out of bed,5,5
+P15,Daily activities,Getting out of bed,4,3
+P16,Daily activities,Getting out of bed,5,4
+P17,Daily activities,Getting out of bed,5,5
+P18,Daily activities,Getting out of bed,5,5
+P19,Daily activities,Getting out of bed,5,4
+P20,Daily activities,Getting out of bed,5,5
+P21,Daily activities,Getting out of bed,5,5
+P22,Daily activities,Getting out of bed,5,5
+P23,Daily activities,Getting out of bed,5,5
+P24,Daily activities,Getting out of bed,5,5
+P25,Daily activities,Getting out of bed,5,5
+P01,Daily activities,Having coffee,2,3
+P02,Daily activities,Having coffee,5,5
+P03,Daily activities,Having coffee,5,5
+P04,Daily activities,Having coffee,5,5
+P05,Daily activities,Having coffee,5,5
+P06,Daily activities,Having coffee,5,5
+P07,Daily activities,Having coffee,5,4
+P08,Daily activities,Having coffee,4,4
+P09,Daily activities,Having coffee,3,3
+P10,Daily activities,Having coffee,5,4
+P11,Daily activities,Having coffee,3,5
+P12,Daily activities,Having coffee,5,5
+P13,Daily activities,Having coffee,4,4
+P14,Daily activities,Having coffee,5,4
+P15,Daily activities,Having coffee,5,5
+P16,Daily activities,Having coffee,4,4
+P17,Daily activities,Having coffee,5,5
+P18,Daily activities,Having coffee,5,4
+P19,Daily activities,Having coffee,5,5
+P20,Daily activities,Having coffee,5,5
+P21,Daily activities,Having coffee,5,5
+P22,Daily activities,Having coffee,5,5
+P23,Daily activities,Having coffee,5,4
+P24,Daily activities,Having coffee,5,5
+P25,Daily activities,Having coffee,5,5
+P26,Daily activities,Having coffee,5,4
+P27,Daily activities,Having coffee,5,4
+P28,Daily activities,Having coffee,5,5
+P29,Daily activities,Having coffee,5,5
+P30,Daily activities,Having coffee,4,4
+P01,Taking time to relax,Discreet napping,2,2
+P02,Taking time to relax,Discreet napping,4,4
+P03,Taking time to relax,Discreet napping,5,4
+P04,Taking time to relax,Discreet napping,3,4
+P05,Taking time to relax,Discreet napping,5,4
+P06,Taking time to relax,Discreet napping,4,4
+P07,Taking time to relax,Discreet napping,5,4
+P08,Taking time to relax,Discreet napping,5,5
+P09,Taking time to relax,Discreet napping,5,5
+P10,Taking time to relax,Discreet napping,3,4
+P11,Taking time to relax,Discreet napping,4,2
+P12,Taking time to relax,Discreet napping,3,5
+P13,Taking time to relax,Discreet napping,5,3
+P14,Taking time to relax,Discreet napping,3,4
+P15,Taking time to relax,Discreet napping,1,4
+P16,Taking time to relax,Discreet napping,3,4
+P17,Taking time to relax,Discreet napping,3,3
+P18,Taking time to relax,Discreet napping,2,5
+P19,Taking time to relax,Discreet napping,2,1
+P20,Taking time to relax,Discreet napping,5,4
+P21,Taking time to relax,Discreet napping,5,5
+P22,Taking time to relax,Discreet napping,5,5
+P23,Taking time to relax,Discreet napping,4,4
+P01,Taking time to relax,Hiding from professors,5,4
+P02,Taking time to relax,Hiding from professors,5,5
+P03,Taking time to relax,Hiding from professors,5,5
+P04,Taking time to relax,Hiding from professors,5,3
+P05,Taking time to relax,Hiding from professors,5,5
+P06,Taking time to relax,Hiding from professors,1,4
+P07,Taking time to relax,Hiding from professors,4,4
+P08,Taking time to relax,Hiding from professors,4,4
+P09,Taking time to relax,Hiding from professors,4,5
+P10,Taking time to relax,Hiding from professors,5,3
+P01,Taking time to relax,Fleeing from meetings,5,4
+P02,Taking time to relax,Fleeing from meetings,5,5
+P03,Taking time to relax,Fleeing from meetings,5,5
+P04,Taking time to relax,Fleeing from meetings,5,5
+P05,Taking time to relax,Fleeing from meetings,4,4
+P06,Taking time to relax,Fleeing from meetings,5,5
+P07,Taking time to relax,Fleeing from meetings,5,3
+P08,Taking time to relax,Fleeing from meetings,4,5
+P09,Taking time to relax,Fleeing from meetings,5,4
+P10,Taking time to relax,Fleeing from meetings,4,5
+P11,Taking time to relax,Fleeing from meetings,5,5
+P12,Taking time to relax,Fleeing from meetings,3,3
+P13,Taking time to relax,Fleeing from meetings,3,4
+P14,Taking time to relax,Fleeing from meetings,5,5
+P15,Taking time to relax,Fleeing from meetings,5,5
+P16,Taking time to relax,Fleeing from meetings,5,5
+P17,Taking time to relax,Fleeing from meetings,5,4
+P18,Taking time to relax,Fleeing from meetings,5,5
+P19,Taking time to relax,Fleeing from meetings,5,5
