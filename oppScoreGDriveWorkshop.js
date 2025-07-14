@@ -2,7 +2,7 @@
 function onOpen(e) {
   // Add a custom menu to the spreadsheet.
   SpreadsheetApp.getUi() // Or DocumentApp, SlidesApp, or FormApp.
-      .createMenu('OppScore Workshop...')
+      .createMenu('PM Skills Workshop...')
       .addItem('Start data collection', 'createForm')
       .addItem('Finish data collection', 'resetForm')
       .addToUi();
@@ -12,9 +12,9 @@ function onOpen(e) {
 // in a sheet called "Outcomes".
 // Only put outcome statements in the sheet, nothing else
 function createForm() {
-  var date = Utilities.formatDate(new Date(), "GMT+1", "yyyy-MM-dd");
+  var date = Utilities.formatDate(new Date(), "GMT-8", "yyyy-MM-dd");
   var spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
-  var form = FormApp.create("Opportunity Score Workshop - " + date);
+  var form = FormApp.create("PM Skills Workshop - " + date);
   form.setDestination(FormApp.DestinationType.SPREADSHEET, spreadsheet.getId());
   form.setShowLinkToRespondAgain(false);
 
@@ -22,18 +22,23 @@ function createForm() {
   var sheet = ss.getSheetByName('Outcomes');  
   //var data = sheet.getActiveRange().getValues();
   var data = sheet.getDataRange().getValues();
+  var stepResponseArray = [];
   var outcomeResponseArray = [];
   var impsatResponseArray = [];
   for (var i = 0; i < data.length; i++)  {
-    var outcome = data[i][0]
-    var section = form.addPageBreakItem().setTitle(data[i]);
+    var step = data[i][0]
+    var outcome = data[i][1]
+    //var solution = data[i][2]
+    var section = form.addPageBreakItem().setTitle(data[i][0]);
     var item = form.addScaleItem();
-    item.setTitle("How important is [" + outcome + "] for you?")
+    item.setTitle("When you [" + step + "], how important is [" + outcome + "]?")
     .setBounds(1, 5).setLabels("Not at all important", "Extremely important").setRequired(true);
     
     var item = form.addScaleItem();
-    item.setTitle("How satisfied are you with your current solution when [" + outcome + "]?")
-    .setBounds(1, 5).setLabels("Not at all satisfied", "Extremely satisfied").setRequired(true);
+    item.setTitle("How mature is your organization on [" + outcome + "]?")
+    .setBounds(1, 5).setLabels("Not at all mature", "Extremely mature").setRequired(true);
+    stepResponseArray.push(step);
+    stepResponseArray.push(step);
     outcomeResponseArray.push(outcome);
     outcomeResponseArray.push(outcome);
     impsatResponseArray.push("importance");
@@ -41,6 +46,7 @@ function createForm() {
   }
 
   var responsesSheet = ss.insertSheet('Responses');
+  responsesSheet.appendRow(stepResponseArray);
   responsesSheet.appendRow(impsatResponseArray);
   responsesSheet.appendRow(outcomeResponseArray);
 
@@ -69,7 +75,7 @@ function resetForm() {
   if(source !== null) {
     var sourceData = source.getRange(2,2,100,100);
     // get destination range
-    var destinationData = destination.getRange("A3");
+    var destinationData = destination.getRange("A4");
     // copy values to destination range
     sourceData.copyTo(destinationData);
   }

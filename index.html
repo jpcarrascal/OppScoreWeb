@@ -608,25 +608,42 @@
                 });
 
                 function clearData() {
-                    // TODO: Clear input file
+                    // Clear output elements first
                     d3.select("svg").remove();
                     d3.select("#table-body").remove();
+                    document.querySelectorAll(".hidden-button").forEach( elem => { elem.style.visibility = "hidden" });
+                    status.textContent = "";
+                    clearLog();
+                    
+                    // Clear input data in both tabs
                     document.querySelector("#input-data").value = "";
                     document.querySelector("#input-data").style.display = "block";
                     document.querySelector("#alt-data").value = "";
                     document.querySelector("#alt-data").style.display = "block";
-                    document.querySelectorAll(".hidden-button").forEach( elem => { elem.style.visibility = "hidden" });
-                    status.textContent = "";
-                    refresh([]);
                     
-                    // Reset checkboxes and reload sample data
+                    // Reset UI state - checkboxes and category settings
                     document.getElementById('survey-categories-checkbox').checked = false;
                     document.getElementById('datapoint-categories-checkbox').checked = false;
-                    updateCategoryState(false);
+                    
+                    // Manually reset category state without loading sample data
+                    categoriesEnabled = false;
+                    
+                    // Hide category headers
+                    const categoryHeader = document.getElementById('category-header');
+                    const categoryOutputHeader = document.getElementById('category-output-header');
+                    categoryHeader.style.display = 'none';
+                    categoryOutputHeader.style.display = 'none';
+                    
+                    // Update column descriptions
+                    updateColumnDescriptions(false);
+                    
+                    // Reset map visualization
+                    refresh([]);
                 }
 
                 d3.select("#clear").on('click', function(e){
-                    if (document.querySelector("#file-selector")) document.querySelector("#file-selector").value = null;
+                    if (document.querySelector("#file-selector"))
+                        document.querySelector("#file-selector").value = null;
                     clearData();
                 });
 
