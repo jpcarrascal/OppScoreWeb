@@ -1166,7 +1166,8 @@
                     // Update column descriptions
                     updateColumnDescriptions(enabled);
                     
-                    // Note: Sample data loading removed - users can manually load or clear as needed
+                    // Load appropriate sample data based on category setting
+                    loadSampleData(enabled);
                 }
                 
                 function updateColumnDescriptions(enabled) {
