@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Validation Logic</title>
+</head>
+<body>
+    <h2>Testing Outcome Validation Logic</h2>
+    <div id="output"></div>
+    
+    <script>
+        function testValidation(testData, description) {
+            console.log("\n=== Testing: " + description + " ===");
+            
+            var data = testData.split("\n");
+            var outcomes = data[2].split("\t");
+            var uniqueOutcomes = outcomes.filter(function(item, pos, self) { 
+                return self.indexOf(item) == pos; 
+            });
+            var numOutcomes = uniqueOutcomes.length;
+            
+            console.log("Total outcomes:", outcomes.length);
+            console.log("Unique outcomes:", numOutcomes);
+            console.log("Expected (outcomes.length/2):", outcomes.length/2);
+            console.log("Validation passes:", numOutcomes == outcomes.length/2);
+            console.log("Unique outcomes list:", uniqueOutcomes);
+            
+            if (numOutcomes != outcomes.length/2) {
+                console.error("VALIDATION FAILED: There is a problem in the names of your outcomes!!!");
+                return false;
+            } else {
+                console.log("VALIDATION PASSED");
+                return true;
+            }
+        }
+        
+        // Test 1: Valid data (each outcome appears exactly twice)
+        var validData = `Complete academic duties\tComplete academic duties\tTaking time to relax\tTaking time to relax
+importance\tsatisfaction\timportance\tsatisfaction
+Completing homework\tCompleting homework\tFleeing from meetings\tFleeing from meetings
+5\t4\t5\t4`;
+        
+        testValidation(validData, "Valid data - each outcome twice");
+        
+        // Test 2: Invalid data (outcome appears different number of times)
+        var invalidData1 = `Complete academic duties\tComplete academic duties\tTaking time to relax
+importance\tsatisfaction\timportance
+Completing homework\tCompleting homework\tFleeing from meetings
+5\t4\t5`;
+        
+        testValidation(invalidData1, "Invalid data - odd number of columns");
+        
+        // Test 3: Invalid data (outcome names don't match)
+        var invalidData2 = `Complete academic duties\tComplete academic duties\tTaking time to relax\tTaking time to relax
+importance\tsatisfaction\timportance\tsatisfaction
+Completing homework\tCompleting homework\tFleeing from meetings\tDifferent name
+5\t4\t5\t4`;
+        
+        testValidation(invalidData2, "Invalid data - mismatched outcome names");
+        
+        // Test 4: Test with the actual sample data structure
+        var sampleData = `Complete academic duties\tComplete academic duties\tTaking time to relax\tTaking time to relax\tDaily activities\tDaily activities
+importance\tsatisfaction\timportance\tsatisfaction\timportance\tsatisfaction
+Completing homework\tCompleting homework\tFleeing from meetings\tFleeing from meetings\tHaving coffee\tHaving coffee
+5\t4\t5\t4\t2\t3`;
+        
+        testValidation(sampleData, "Sample data structure");
+        
+        document.getElementById('output').innerHTML = '<p>Check the browser console for test results</p>';
+    </script>
+</body>
+</html>

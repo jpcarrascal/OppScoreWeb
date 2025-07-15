@@ -324,7 +324,7 @@
         <script>
             window.onload = function() {
                 var removeMissing = true;
-                var verboseLog = false;
+                var verboseLog = true;
                 var categoriesEnabled = false;
                 if (window.location.search.substr("keepMissing")) {
                     console.log("Rows with missing values will not be removed")
@@ -569,8 +569,11 @@
                 d3.select(".map-data").on('click', function(e){
                     clearLog();
                     d3.select("#table-body").remove();
-                    var inputdata = inputElement.value;
+                    
+                    var inputdata;
+                    
                     if(document.getElementById("survey-tab").classList.contains("active")) {
+                        // Survey tab is active - get data from alt-data and reformat
                         var surveyData = document.querySelector("#alt-data").value;
                         try {
                             inputdata = reformatData(surveyData);
@@ -578,10 +581,15 @@
                             document.querySelector("#status").innerText = "Reformat sucessful! Transformed data is included below";
                         } catch(error) {
                             document.querySelector("#status").innerText = error;
+                            return; // Exit early on error
                         }
+                    } else {
+                        // Datapoint tab is active - get data from input-data
+                        inputdata = document.querySelector("#input-data").value;
                     }
 
                     var newData = parsePastedData(inputdata);
+                    console.log("Parsed data: ", newData);
 
                     if (newData.length > 0) {
                         document.querySelectorAll(".hidden-button").forEach( elem => { elem.style.visibility = "visible" });
@@ -792,7 +800,7 @@
                                 }
                                 
                                 if(row.length > expectedColumns) {
-                                    outputLog("Row "+i+" removed (row too long): " + row);
+                                    outputLog("Row "+i+" removed (row too long): " + row + "length: " + row.length);
                                     status.textContent = "Too many columns! (they should be " + columnDescription + ")"
                                     garbageRows++;
                                 } else if(row.length == expectedColumns) {
@@ -957,15 +965,32 @@
                 var separator = "\t"; // separator = /[\t,\,]/;
                 function reformatData(input) {
                     var data = input.split("\n");
-                    if(!data[1].toLowerCase().includes("satisfaction") ||
-                        !data[1].toLowerCase().includes("importance")) {
+                    
+                    var categoriesRow, impsatsRow, outcomesRow, dataStartRow;
+                    
+                    if (categoriesEnabled) {
+                        // Category-enabled format: [categories, importance/satisfaction, outcomes, data...]
+                        categoriesRow = 0;
+                        impsatsRow = 1;
+                        outcomesRow = 2;
+                        dataStartRow = 3;
+                    } else {
+                        // Standard format: [importance/satisfaction, outcomes, data...]
+                        categoriesRow = null;
+                        impsatsRow = 0;
+                        outcomesRow = 1;
+                        dataStartRow = 2;
+                    }
+                    
+                    if(!data[impsatsRow].toLowerCase().includes("satisfaction") ||
+                        !data[impsatsRow].toLowerCase().includes("importance")) {
                         throw("ERROR: Every column should be labeled as 'importance' or 'satisfaction'!!!");
                     }
                     
-                    var categories = categoriesEnabled ? data[0].split(separator) : null;
-                    var impsats = data[1].split(separator);
+                    var categories = categoriesEnabled ? data[categoriesRow].split(separator) : null;
+                    var impsats = data[impsatsRow].split(separator);
                     var numCols = impsats.length;
-                    var outcomes = data[2].split(separator);
+                    var outcomes = data[outcomesRow].split(separator);
                     
                     // Unique array elements, from: https://stackoverflow.com/questions/9229645/remove-duplicate-values-from-js-array
                     var uniqueOutcomes = outcomes.filter(function(item, pos, self) { return self.indexOf(item) == pos; });
@@ -984,7 +1009,7 @@
                         throw("ERROR: importance and satisfaction counts do not match!!!");
                         
                     var outputArray = new Array();
-                    for(var i=3; i<data.length; i++) {
+                    for(var i = dataStartRow; i < data.length; i++) {
                         var dp = new Object();
                         var scores = data[i].split(separator);
                         for(o=0; o<uniqueOutcomes.length; o++) {
