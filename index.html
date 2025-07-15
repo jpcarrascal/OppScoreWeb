@@ -326,6 +326,7 @@
                 var removeMissing = true;
                 var verboseLog = true;
                 var categoriesEnabled = false;
+                var dataWasCleared = false; // Flag to track when data was explicitly cleared
                 if (window.location.search.substr("keepMissing")) {
                     console.log("Rows with missing values will not be removed")
                     removeMissing = false;
@@ -616,6 +617,9 @@
                 });
 
                 function clearData() {
+                    // Set flag to indicate data was explicitly cleared
+                    dataWasCleared = true;
+                    
                     // Clear output elements first
                     d3.select("svg").remove();
                     d3.select("#table-body").remove();
@@ -678,6 +682,8 @@
                             }
                         }
                         console.log("Read "+i+" rows from sample file");
+                        // Reset the flag since sample data was successfully loaded
+                        dataWasCleared = false;
                     });
                     return result;
                 }
@@ -749,6 +755,8 @@
                     outputLog(garbageRows + " invalid rows found.");
                     if(removeMissing) outputLog(incompleteRows + " rows removed.");
                     outputLog(data.length + " rows used in calculation.");
+                    // Reset the flag since file data was successfully loaded
+                    dataWasCleared = false;
                     return data;
                 }
 
@@ -1180,9 +1188,21 @@
                 }
                 
                 function loadSampleData(withCategories) {
-                    // Clear existing data first
-                    document.querySelector("#input-data").value = "";
-                    document.querySelector("#alt-data").value = "";
+                    // Don't load sample data if data was explicitly cleared
+                    if (dataWasCleared) {
+                        console.log("Data was cleared, skipping sample data load");
+                        return;
+                    }
+                    
+                    // Check if both textareas are empty - if not, don't load sample data
+                    // This prevents overwriting user-entered data when toggling the checkbox
+                    const inputData = document.querySelector("#input-data").value.trim();
+                    const altData = document.querySelector("#alt-data").value.trim();
+                    
+                    if (inputData !== "" || altData !== "") {
+                        console.log("User data detected, skipping sample data load");
+                        return;
+                    }
                     
                     if (withCategories) {
                         // Load sample data with categories
@@ -1198,7 +1218,11 @@
                     
                     fetch(surveyDataURL)
                         .then(response => response.text())
-                        .then(data => document.querySelector("#alt-data").value = data);
+                        .then(data => {
+                            document.querySelector("#alt-data").value = data;
+                            // Reset the flag since sample data was successfully loaded
+                            dataWasCleared = false;
+                        });
                 }
                 
                 function getCategoryColor(category, categoryList) {
@@ -1208,6 +1232,19 @@
                 
                 // Initialize category functionality
                 syncCheckboxes();
+                
+                // Reset the dataWasCleared flag when users start entering data
+                document.querySelector("#input-data").addEventListener('input', function() {
+                    if (this.value.trim() !== "") {
+                        dataWasCleared = false;
+                    }
+                });
+                
+                document.querySelector("#alt-data").addEventListener('input', function() {
+                    if (this.value.trim() !== "") {
+                        dataWasCleared = false;
+                    }
+                });
 
 
             }
