@@ -629,21 +629,22 @@
                     document.querySelector("#alt-data").value = "";
                     document.querySelector("#alt-data").style.display = "block";
                     
-                    // Reset UI state - checkboxes and category settings
-                    document.getElementById('survey-categories-checkbox').checked = false;
-                    document.getElementById('datapoint-categories-checkbox').checked = false;
+                    // Note: Category checkboxes are NOT reset - they maintain their state
+                    // Users can manually change category settings independent of data clearing
                     
-                    // Manually reset category state without loading sample data
-                    categoriesEnabled = false;
-                    
-                    // Hide category headers
+                    // Update UI elements based on current category state (but don't change the checkboxes)
                     const categoryHeader = document.getElementById('category-header');
                     const categoryOutputHeader = document.getElementById('category-output-header');
-                    categoryHeader.style.display = 'none';
-                    categoryOutputHeader.style.display = 'none';
+                    if (categoriesEnabled) {
+                        categoryHeader.style.display = 'table-cell';
+                        categoryOutputHeader.style.display = 'table-cell';
+                    } else {
+                        categoryHeader.style.display = 'none';
+                        categoryOutputHeader.style.display = 'none';
+                    }
                     
-                    // Update column descriptions
-                    updateColumnDescriptions(false);
+                    // Update column descriptions based on current category state
+                    updateColumnDescriptions(categoriesEnabled);
                     
                     // Reset map visualization
                     refresh([]);
@@ -1165,8 +1166,7 @@
                     // Update column descriptions
                     updateColumnDescriptions(enabled);
                     
-                    // Load appropriate sample data
-                    loadSampleData(enabled);
+                    // Note: Sample data loading removed - users can manually load or clear as needed
                 }
                 
                 function updateColumnDescriptions(enabled) {
